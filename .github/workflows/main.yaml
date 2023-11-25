@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 2
 
       - name: 🔧 Build
-        working-directory: apps/commit
+        working-directory: apps/main
         run: SCOPE=main .ci/build.sh
 
       - name: ☁️ Install cloudflared
@@ -39,5 +39,5 @@ jobs:
           config: ${{ secrets.SSH_CONFIG }}
 
       - name: 🐳 🚀 Deploy
-        working-directory: apps/commit
+        working-directory: apps/main
         run: SCOPE=main .ci/deploy.sh
