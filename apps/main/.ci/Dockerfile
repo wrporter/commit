@@ -12,7 +12,7 @@ FROM base AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json .npmrc ./
 RUN npm ci --loglevel=warn
 
 COPY . .
@@ -53,5 +53,6 @@ ENV NODE_ENV production
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
+COPY --from=builder /app/public ./public
 
 CMD ["node", "./build/main.js"]

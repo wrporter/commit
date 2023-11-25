@@ -7,14 +7,14 @@ source .ci/config.sh
 
 # Inject secrets
 injectSecrets
-scp -O ${SCP_PORT} ${WORKSPACE_PATH}/.env.prod ${SSH_USER}@${SSH_HOST}:${BASE_DIRECTORY}${REMOTE_APP_DIRECTORY}/.env
+scp -O ${SCP_PORT_OPT} .env.prod ${SSH_USER}@${SSH_HOST}:${BASE_DIRECTORY}/${APP}/.env
 
 # Deploy updated docker-compose config
-scp -O ${SCP_PORT} .ci/docker-compose.yml ${SSH_USER}@${SSH_HOST}:${BASE_DIRECTORY}/${APP}
+scp -O ${SCP_PORT_OPT} ../../.ci/docker-compose.yml ${SSH_USER}@${SSH_HOST}:${BASE_DIRECTORY}/${APP}
 
 # Package and send docker image
 docker save -o $(pwd)/${APP_SCOPE}.tar "${IMAGE_PATH}:latest"
-scp ${SCP_PORT} $(pwd)/${APP_SCOPE}.tar ${SSH_USER}@${SSH_HOST}:${BASE_DIRECTORY}
+scp -O ${SCP_PORT_OPT} $(pwd)/${APP_SCOPE}.tar ${SSH_USER}@${SSH_HOST}:${BASE_DIRECTORY}
 rm -f $(pwd)/${APP_SCOPE}.tar
 
 # Load and start docker container

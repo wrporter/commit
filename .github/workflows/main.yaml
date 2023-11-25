@@ -1,0 +1,43 @@
+name: Main
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    name: Build and Test
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      COMMIT_SECRETS: ${{ secrets.COMMIT_SECRETS }}
+
+    steps:
+      - name: 🥼 Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: 🔧 Build
+        working-directory: apps/commit
+        run: SCOPE=main .ci/build.sh
+
+      - name: ☁️ Install cloudflared
+        run: sudo wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb && sudo dpkg -i cloudflared-linux-amd64.deb
+
+      - name: 🔑 Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          name: id_ed25519
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          config: ${{ secrets.SSH_CONFIG }}
+
+      - name: 🐳 🚀 Deploy
+        working-directory: apps/commit
+        run: SCOPE=main .ci/deploy.sh

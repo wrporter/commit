@@ -9,7 +9,7 @@ APP_SECRETS="${APP}_SECRETS"
 IMAGE_PATH="${IMAGE_PATH:-${NAMESPACE}/${APP_SCOPE}}"
 
 SSH_PORT_OPT="-p ${SSH_PORT}"
-SCP_PORT="-P ${SSH_PORT}"
+SCP_PORT_OPT="-P ${SSH_PORT}"
 BASE_DIRECTORY="/volume1/docker"
 
 VERSION="${GIT_COMMIT:-$(git rev-parse HEAD)}"
@@ -34,8 +34,11 @@ function dockerBuild() {
 }
 
 function injectSecrets() {
-  if [ ! -f "apps/${SCOPE}/.env.prod" ] -a  [ -n "${!APP_SECRETS}" ]; then
-    echo "${!$(upper ${APP_SECRETS})}" > .env.prod
+  SECRET_NAME=$(upper "${APP_SECRETS}")
+  EXPANDED_SECRETS=${!SECRET_NAME}
+  if [[ ! -f ".env.prod" && -n ${EXPANDED_SECRETS} ]]; then
+    echo "-- Writing secrets from '${SECRET_NAME}' to .env.prod"
+    echo ${EXPANDED_SECRETS} > .env.prod
   fi
 }
 
