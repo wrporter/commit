@@ -1,0 +1,12 @@
+{
+  "extends": "@wesp-up/tsconfig/remix.json",
+  "include": ["**/*", ".*",],
+  "exclude": ["**/build", "coverage"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./app/*"],
+      "~/server/*": ["./server/*"]
+    }
+  }
+}

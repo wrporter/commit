@@ -1,0 +1,155 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Use auto-incrementing IDs until in a distributed database.
+
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  imageUrl        String?
+  image           String?
+  displayName     String
+  password        Password?
+  socialProviders Json?
+
+  groups Group[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Group {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  owners User[]
+  charts Chart[]
+  people Person[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Password {
+  id   Int    @id @default(autoincrement())
+  hash String
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chart {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  groups          Group[]
+  people          Person[]
+  tasks           Task[]
+  taskAssignments TaskAssignment[]
+  taskRewards     TaskReward[]
+  taskStatuses    TaskStatus[]
+  commissions     Commission[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Person {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  groups          Group[]
+  taskAssignments TaskAssignment[]
+  taskRewards     TaskReward[]
+  taskStatuses    TaskStatus[]
+  commissions     Commission[]
+  charts          Chart[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id      Int    @id @default(autoincrement())
+  icon    String
+  name    String
+  chartId Int
+
+  chart Chart @relation(fields: [chartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  assignments TaskAssignment[]
+  rewards     TaskReward[]
+  statuses    TaskStatus[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TaskAssignment {
+  id       Int @id @default(autoincrement())
+  day      Int
+  chartId  Int
+  personId Int
+  taskId   Int
+
+  chart  Chart  @relation(fields: [chartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person Person @relation(fields: [personId], references: [id])
+  task   Task   @relation(fields: [taskId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TaskReward {
+  id       Int   @id @default(autoincrement())
+  reward   Float
+  chartId  Int
+  personId Int
+  taskId   Int
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chart  Chart  @relation(fields: [chartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TaskStatus {
+  day         DateTime  @db.Date
+  chartId     Int
+  personId    Int
+  taskId      Int
+  completedAt DateTime?
+
+  chart  Chart  @relation(fields: [chartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([day, taskId])
+}
+
+model Commission {
+  id       Int   @id @default(autoincrement())
+  amount   Float
+  chartId  Int
+  personId Int
+
+  chart  Chart  @relation(fields: [chartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
