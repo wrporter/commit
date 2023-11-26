@@ -42,7 +42,7 @@ export function Header() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button kind="tertiary" className="p-1 h-10 w-10 text-gray-600">
-                                <Bars3Icon />
+                                <Bars3Icon className="h-10 w-10" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>

@@ -150,7 +150,7 @@ export default function Page() {
                                                             small
                                                             className="w-8"
                                                         >
-                                                            <TrashIcon />
+                                                            <TrashIcon className="h-8 w-8" />
                                                         </Button>
                                                     </Form>
                                                 </div>
