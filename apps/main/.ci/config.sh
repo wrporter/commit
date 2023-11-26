@@ -35,10 +35,10 @@ function dockerBuild() {
 
 function injectSecrets() {
   SECRET_NAME=$(upper "${APP_SECRETS}")
-  EXPANDED_SECRETS=${!SECRET_NAME}
-  if [[ ! -f ".env.prod" && -n ${EXPANDED_SECRETS} ]]; then
+  EXPANDED_SECRETS="${!SECRET_NAME}"
+  if [[ ! -f ".env.prod" && -n "${EXPANDED_SECRETS}" ]]; then
     echo "-- Writing secrets from '${SECRET_NAME}' to .env.prod"
-    echo ${EXPANDED_SECRETS} > .env.prod
+    echo "${EXPANDED_SECRETS}" > .env.prod
   fi
 }
 
