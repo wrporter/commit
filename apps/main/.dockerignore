@@ -13,6 +13,6 @@ public/build
 !postcss.config.js
 !remix.config.js
 !remix.env.d.ts
-!tailwind.config.js
+!tailwind.config.ts
 !tsconfig.json
 !vitest.config.ts

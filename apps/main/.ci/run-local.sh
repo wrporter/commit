@@ -8,6 +8,7 @@ source .ci/config.sh
 docker run -it --init \
 	--rm \
 	--name=${APP_SCOPE} \
+	--env-file .env \
 	-p 3000:3000 \
 	-p 22500:22500 \
-	${IMAGE_PATH}:${VERSION}
+	${IMAGE_PATH}

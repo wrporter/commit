@@ -12,7 +12,7 @@
     "build:remix": "remix build",
     "build:server": "esbuild --platform=node --sourcemap --format=cjs --log-level=warning --outdir=build --tsconfig=server/tsconfig.json ./server/main.ts",
     "ci": "run-p lint test:coverage build && npm run typecheck",
-    "clean": "rm -rf logs coverage build public/build app/styles/tailwind.css",
+    "clean": "rm -rf junit.xml coverage build public/build",
     "db:update": "prisma db push && prisma generate",
     "dev": "run-p dev:*",
     "dev:build": "cross-env NODE_ENV=development npm run build:server -- --watch",
