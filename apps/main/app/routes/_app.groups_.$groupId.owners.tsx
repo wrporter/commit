@@ -1,16 +1,8 @@
+import { Avatar, Button, Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/react';
 import { useLoaderData } from '@remix-run/react';
-import {
-    Button,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    DialogTrigger,
-    Pill,
-    PillGroup,
-} from '@wesp-up/ui';
+import { Pill, PillGroup } from '@wesp-up/ui';
 import React, { useState } from 'react';
 
-import { UserAvatar } from '~/lib/ui/header';
 import { loader as groupLoader } from '~/routes/_app.groups_.$groupId';
 import { useUser } from '~/utils';
 
@@ -30,14 +22,13 @@ export default function Page() {
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl">Owners</h2>
 
-                <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger asChild>
-                        <Button kind="primary">Share</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogTitle>Share</DialogTitle>
-                    </DialogContent>
-                </Dialog>
+                <Button color="primary">Share</Button>
+                <Modal isOpen={open} onOpenChange={setOpen}>
+                    <ModalContent>
+                        <ModalHeader>Share</ModalHeader>
+                        <ModalBody>TODO: Add sharing</ModalBody>
+                    </ModalContent>
+                </Modal>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -46,9 +37,9 @@ export default function Page() {
                     <PillGroup key={owner.id}>
                         <Pill>
                             <div className="flex items-center gap-4">
-                                <UserAvatar
-                                    imageUrl={owner.imageUrl ?? undefined}
-                                    displayName={owner.displayName}
+                                <Avatar
+                                    src={owner.imageUrl ?? undefined}
+                                    name={owner.displayName}
                                     className="w-10 h-10"
                                 />
                                 {`${owner.displayName}${user.id === owner.id ? ' (you)' : ''}`}

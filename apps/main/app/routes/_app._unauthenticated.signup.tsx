@@ -1,8 +1,8 @@
+import { Button, Input, Link } from '@nextui-org/react';
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { Form, Link, useSearchParams } from '@remix-run/react';
+import { Form, Link as RemixLink, useSearchParams } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
-import { Button, TextField, TextLink } from '@wesp-up/ui';
 import * as React from 'react';
 import { ValidatedForm, useFormContext, validationError } from 'remix-validated-form';
 import { z } from 'zod';
@@ -74,7 +74,8 @@ export default function Signup() {
 
                 <Button
                     type="submit"
-                    kind="tertiary"
+                    color="primary"
+                    variant="ghost"
                     className="flex w-full items-center justify-center space-x-4"
                 >
                     <img src="/assets/google-logo.svg" alt="" className="h-6 w-6" />
@@ -82,102 +83,85 @@ export default function Signup() {
                 </Button>
             </Form>
 
-            <div className="mx-auto w-full max-w-md rounded bg-white px-8 py-8 drop-shadow">
+            <div className="mx-auto w-full max-w-md rounded bg-background px-8 py-8 drop-shadow-lg">
                 <ValidatedForm
                     id="signupForm"
                     validator={validator}
                     method="post"
-                    className="space-y-6"
+                    className="flex flex-col gap-6"
                     noValidate
                 >
                     <div>
-                        <label
-                            htmlFor="displayName"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Display name
-                        </label>
-                        <div className="mt-1">
-                            <TextField
-                                id="displayName"
-                                name="displayName"
-                                type="displayName"
-                                autoComplete="displayName"
-                                aria-invalid={Boolean(form.fieldErrors.displayName)}
-                                aria-describedby="displayName-error"
-                                className="w-full"
-                            />
-                            {form.fieldErrors.displayName && (
-                                <div className="pt-1 text-red-700" id="displayName-error">
-                                    {form.fieldErrors.displayName}
-                                </div>
-                            )}
-                        </div>
+                        <Input
+                            label="Display name"
+                            id="displayName"
+                            name="displayName"
+                            type="displayName"
+                            autoComplete="displayName"
+                            aria-invalid={Boolean(form.fieldErrors.displayName)}
+                            aria-describedby="displayName-error"
+                            className="w-full"
+                        />
+                        {form.fieldErrors.displayName && (
+                            <div className="pt-1 text-red-700" id="displayName-error">
+                                {form.fieldErrors.displayName}
+                            </div>
+                        )}
                     </div>
 
                     <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                            Email address
-                        </label>
-                        <div className="mt-1">
-                            <TextField
-                                id="email"
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                aria-invalid={Boolean(form.fieldErrors.email)}
-                                aria-describedby="email-error"
-                                className="w-full"
-                            />
-                            {form.fieldErrors.email && (
-                                <div className="pt-1 text-red-700" id="email-error">
-                                    {form.fieldErrors.email}
-                                </div>
-                            )}
-                        </div>
+                        <Input
+                            label="Email"
+                            id="email"
+                            name="email"
+                            type="email"
+                            autoComplete="email"
+                            aria-invalid={Boolean(form.fieldErrors.email)}
+                            aria-describedby="email-error"
+                            className="w-full"
+                        />
+                        {form.fieldErrors.email && (
+                            <div className="pt-1 text-red-700" id="email-error">
+                                {form.fieldErrors.email}
+                            </div>
+                        )}
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="password"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Password
-                        </label>
-                        <div className="mt-1">
-                            <TextField
-                                id="password"
-                                name="password"
-                                type="password"
-                                autoComplete="new-password"
-                                aria-invalid={Boolean(form.fieldErrors.password)}
-                                aria-describedby="password-error"
-                                className="w-full"
-                            />
-                            {form.fieldErrors.password && (
-                                <div className="pt-1 text-red-700" id="password-error">
-                                    {form.fieldErrors.password}
-                                </div>
-                            )}
-                        </div>
+                        <Input
+                            label="Password"
+                            id="password"
+                            name="password"
+                            type="password"
+                            autoComplete="new-password"
+                            aria-invalid={Boolean(form.fieldErrors.password)}
+                            aria-describedby="password-error"
+                            className="w-full"
+                        />
+                        {form.fieldErrors.password && (
+                            <div className="pt-1 text-red-700" id="password-error">
+                                {form.fieldErrors.password}
+                            </div>
+                        )}
                     </div>
 
                     <input type="hidden" name="redirectTo" value={redirectTo} />
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" color="primary" className="w-full">
                         Create Account
                     </Button>
                     <div className="flex items-center justify-center">
                         <div className="text-center text-sm text-gray-500">
                             Already have an account?{' '}
-                            <TextLink
-                                as={Link}
+                            <Link
+                                as={RemixLink}
                                 to={{
                                     pathname: '/login',
                                     search: searchParams.toString(),
                                 }}
+                                size="sm"
                             >
                                 Log in
-                            </TextLink>
+                            </Link>
                         </div>
                     </div>
                 </ValidatedForm>

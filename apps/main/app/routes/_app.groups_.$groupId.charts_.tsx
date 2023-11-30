@@ -11,7 +11,7 @@ import { requireUser } from '~/auth.server';
 import { createChart, deleteChart, updateChart } from '~/lib/models/chart.server';
 import { getGroupForUser } from '~/lib/models/group.server';
 import type { ResourceFormField, ResourceFormPropagatedProps } from '~/lib/ui/resource-pill';
-import { ResourceDialog, ResourcePill } from '~/lib/ui/resource-pill';
+import { ResourceModal, ResourcePill } from '~/lib/ui/resource-pill';
 import { loader as groupLoader } from '~/routes/_app.groups_.$groupId';
 
 export const loader = groupLoader;
@@ -83,7 +83,7 @@ export default function Page() {
             <div className="flex justify-between items-center">
                 <h2 className="text-xl">Charts</h2>
 
-                <ResourceDialog form={form} />
+                <ResourceModal form={form} />
             </div>
 
             <Outlet />

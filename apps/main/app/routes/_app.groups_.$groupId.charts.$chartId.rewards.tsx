@@ -1,3 +1,4 @@
+import type { Person, Task } from '@prisma/client';
 import type { ActionFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
@@ -12,13 +13,11 @@ import { requireUser } from '~/auth.server';
 import { getChartForUser } from '~/lib/models/chart.server';
 import { getGroupForUser } from '~/lib/models/group.server';
 import type { Serialized } from '~/lib/models/model';
-import type { Person } from '~/lib/models/person.server';
-import type { Task } from '~/lib/models/task.server';
 import { createTaskReward, deleteTaskReward, updateTaskReward } from '~/lib/models/task.server';
 import { Currency } from '~/lib/ui/currency';
-import { ResourceCombobox } from '~/lib/ui/resource-combobox';
+import { ResourceAutocomplete } from '~/lib/ui/resource-autocomplete';
 import type { ResourceFormField, ResourceFormPropagatedProps } from '~/lib/ui/resource-pill';
-import { ResourceDialog, ResourcePill } from '~/lib/ui/resource-pill';
+import { ResourceModal, ResourcePill } from '~/lib/ui/resource-pill';
 import { loader as chartLoader } from '~/routes/_app.groups_.$groupId.charts.$chartId';
 
 export const loader = chartLoader;
@@ -37,6 +36,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     invariant(chart, 'Unauthorized');
 
     if (request.method === 'DELETE') {
+        // TODO: Handle cascading database deletions
         const formData = await request.formData();
         const rewardId = Number.parseInt((formData.get('rewardId') as string) ?? '0', 10);
         invariant(rewardId, 'No rewardId found');
@@ -50,8 +50,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
     const reward = {
         chartId,
-        personId: form.data.person.id,
-        taskId: form.data.task.id,
+        personId: form.data.personId,
+        taskId: form.data.taskId,
         reward: form.data.reward,
     };
     if (request.method === 'POST') {
@@ -70,8 +70,8 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 const validator = withZod(
     z.object({
         rewardId: zfd.numeric(z.number().optional()),
-        person: z.object({ id: zfd.numeric(z.number()) }),
-        task: z.object({ id: zfd.numeric(z.number()) }),
+        personId: zfd.numeric(z.number()),
+        taskId: zfd.numeric(z.number()),
         reward: zfd.numeric(
             z
                 .number({ required_error: 'Please enter a reward.' })
@@ -91,7 +91,12 @@ const fields: ResourceFormField[] = [
             step: '0.01',
             min: '0.00',
             max: '100',
-            className: 'text-green-500 tabular-nums',
+            isRequired: true,
+            startContent: (
+                <div className="pointer-events-none flex items-center">
+                    <span className="text-default-400 text-small">$</span>
+                </div>
+            ),
         },
     },
 ];
@@ -112,19 +117,21 @@ export default function Page() {
         fields,
         children: (
             <>
-                <ResourceCombobox<Serialized<Person>>
-                    displayValue={(person: Serialized<Person>) => person.name}
-                    resources={group.people as Serialized<Person[]>}
+                <ResourceAutocomplete<Serialized<Person>>
                     label="Person"
-                    formName="person"
+                    name="person"
                     placeholder="Select person"
+                    isRequired
+                    displayValue={(person) => person?.name ?? ''}
+                    resources={group.people}
                 />
-                <ResourceCombobox<Serialized<Task>>
-                    displayValue={(task: Serialized<Task>) => `${task.icon} ${task.name}`}
-                    resources={chart.tasks as Serialized<Task[]>}
+                <ResourceAutocomplete<Serialized<Task>>
                     label="Task"
-                    formName="task"
+                    name="task"
                     placeholder="Select task"
+                    isRequired
+                    displayValue={(task) => (task ? `${task.icon} ${task.name}` : '')}
+                    resources={chart.tasks}
                 />
             </>
         ),
@@ -134,7 +141,7 @@ export default function Page() {
 
     return (
         <section className="pt-4">
-            <ResourceDialog form={form} />
+            <ResourceModal form={form} />
 
             <div className="flex flex-col gap-4 mt-4">
                 {chart.taskRewards.map((reward) => {
@@ -148,8 +155,8 @@ export default function Page() {
                             form={{
                                 ...form,
                                 defaultValues: {
-                                    person,
-                                    task,
+                                    person: person?.id,
+                                    task: task?.id,
                                     reward: reward.reward,
                                 },
                                 resource: {

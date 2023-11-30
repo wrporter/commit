@@ -1,20 +1,21 @@
-import { TextField } from '@wesp-up/ui';
+import type { InputProps } from '@nextui-org/react';
+import { Input } from '@nextui-org/react';
 import { useField } from 'remix-validated-form';
-import { twMerge } from 'tailwind-merge';
 
-export interface FormInputProps {
+export interface FormInputProps extends InputProps {
     name: string;
-    className?: string;
 }
-export function FormInput({ name, className, ...rest }: FormInputProps) {
-    const { getInputProps } = useField(name);
+export function FormInput({ name, label, ...rest }: FormInputProps) {
+    const { getInputProps, error } = useField(name);
 
     return (
-        <TextField
+        <Input
             {...getInputProps({ ...rest })}
-            className={twMerge('flex-grow peer', className)}
+            label={label}
             autoComplete="off"
             data-1p-ignore
+            isInvalid={Boolean(error)}
+            errorMessage={error}
         />
     );
 }

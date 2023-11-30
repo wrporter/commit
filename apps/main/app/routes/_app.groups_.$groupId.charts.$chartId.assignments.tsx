@@ -1,9 +1,10 @@
 import { TrashIcon } from '@heroicons/react/24/outline';
+import { Button } from '@nextui-org/react';
+import type { Person, Task } from '@prisma/client';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Form, useLoaderData } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
-import { Button } from '@wesp-up/ui';
 import React from 'react';
 import { ValidatedForm, validationError } from 'remix-validated-form';
 import invariant from 'tiny-invariant';
@@ -16,10 +17,8 @@ import { getChartForUser } from '~/lib/models/chart.server';
 import { DAYS } from '~/lib/models/DAYS';
 import { getGroupForUser } from '~/lib/models/group.server';
 import type { Serialized } from '~/lib/models/model';
-import type { Person } from '~/lib/models/person.server';
-import type { Task } from '~/lib/models/task.server';
 import { createTaskAssignment } from '~/lib/models/task.server';
-import { ResourceCombobox } from '~/lib/ui/resource-combobox';
+import { ResourceAutocomplete } from '~/lib/ui/resource-autocomplete';
 import { FormErrors } from '~/lib/ui/resource-pill';
 import { loader as chartLoader } from '~/routes/_app.groups_.$groupId.charts.$chartId';
 
@@ -143,14 +142,16 @@ export default function Page() {
                                                         method="DELETE"
                                                         id="deleteTaskAssignment"
                                                         navigate={false}
+                                                        className="h-8"
                                                     >
                                                         <Button
-                                                            kind="danger"
+                                                            color="danger"
                                                             type="submit"
-                                                            small
-                                                            className="w-8"
+                                                            size="sm"
+                                                            isIconOnly
+                                                            aria-label="Delete"
                                                         >
-                                                            <TrashIcon className="h-8 w-8" />
+                                                            <TrashIcon className="h-6 w-6" />
                                                         </Button>
                                                     </Form>
                                                 </div>
@@ -170,27 +171,31 @@ export default function Page() {
                             <input type="hidden" name="day" value={dayOfWeek} />
 
                             <div className="flex flex-1 gap-2">
-                                <ResourceCombobox<Serialized<Person>>
-                                    displayValue={(person: Serialized<Person>) => person.name}
-                                    resources={group.people as Serialized<Person[]>}
+                                <ResourceAutocomplete<Serialized<Person>>
                                     label="Person"
-                                    formName="person"
+                                    name="person"
                                     placeholder="Select person"
+                                    isRequired
+                                    displayValue={(person) => person?.name ?? ''}
+                                    resources={group.people}
                                     className="w-full"
+                                    size="sm"
                                 />
-                                <ResourceCombobox<Serialized<Task>>
-                                    displayValue={(task: Serialized<Task>) =>
-                                        `${task.icon} ${task.name}`
-                                    }
-                                    resources={chart.tasks as Serialized<Task[]>}
+                                <ResourceAutocomplete<Serialized<Task>>
                                     label="Task"
-                                    formName="task"
+                                    name="task"
                                     placeholder="Select task"
+                                    isRequired
+                                    displayValue={(task) =>
+                                        task ? `${task.icon} ${task.name}` : ''
+                                    }
+                                    resources={chart.tasks}
                                     className="w-full"
+                                    size="sm"
                                 />
                             </div>
 
-                            <Button type="submit" kind="secondary">
+                            <Button type="submit" color="primary" variant="ghost">
                                 Add
                             </Button>
 

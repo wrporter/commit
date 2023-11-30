@@ -1,8 +1,8 @@
+import { Button, Checkbox, Input, Link } from '@nextui-org/react';
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { Form, Link, useActionData, useSearchParams } from '@remix-run/react';
+import { Form, Link as RemixLink, useActionData, useSearchParams } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
-import { Button, Checkbox, TextField, TextLink } from '@wesp-up/ui';
 import * as React from 'react';
 import { AuthorizationError } from 'remix-auth';
 import { ValidatedForm, useFormContext, validationError } from 'remix-validated-form';
@@ -67,7 +67,8 @@ export default function LoginPage() {
 
                 <Button
                     type="submit"
-                    kind="tertiary"
+                    color="primary"
+                    variant="ghost"
                     className="flex w-full items-center justify-center space-x-4"
                 >
                     <img src="/assets/google-logo.svg" alt="" className="h-6 w-6" />
@@ -75,25 +76,22 @@ export default function LoginPage() {
                 </Button>
             </Form>
 
-            <div className="mx-auto w-full max-w-md rounded bg-white px-8 py-8 drop-shadow">
+            <div className="mx-auto w-full max-w-md rounded bg-background px-8 py-8 drop-shadow-lg">
                 <ValidatedForm
                     id="loginForm"
                     validator={validator}
                     method="post"
-                    className="space-y-6"
+                    className="flex flex-col gap-6"
                     noValidate
                 >
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            Email Address
-                            <TextField
-                                name="email"
-                                type="email"
-                                autoComplete="email"
-                                aria-describedby="email-error"
-                                className="w-full mt-1"
-                            />
-                        </label>
+                        <Input
+                            label="Email"
+                            name="email"
+                            type="email"
+                            autoComplete="email"
+                            aria-describedby="email-error"
+                        />
                         {form.fieldErrors.email && (
                             <div className="pt-1 text-red-700" id="email-error">
                                 {form.fieldErrors.email}
@@ -102,16 +100,13 @@ export default function LoginPage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            Password
-                            <TextField
-                                name="password"
-                                type="password"
-                                autoComplete="current-password"
-                                className="w-full mt-1"
-                                aria-describedby="password-error"
-                            />
-                        </label>
+                        <Input
+                            label="Password"
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            aria-describedby="password-error"
+                        />
                         {form.fieldErrors.password && (
                             <div className="pt-1 text-red-700" id="password-error">
                                 {form.fieldErrors.password}
@@ -124,28 +119,28 @@ export default function LoginPage() {
                     </div>
 
                     <input type="hidden" name="redirectTo" value={redirectTo} />
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" color="primary" className="w-full">
                         Log in
                     </Button>
 
                     <div className="flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
                         <div className="flex items-center">
-                            <Checkbox id="remember" name="remember" />
-                            <label htmlFor="remember" className="ml-2 block text-sm text-gray-900">
+                            <Checkbox id="remember" name="remember" size="sm">
                                 Remember me
-                            </label>
+                            </Checkbox>
                         </div>
                         <div className="text-center text-sm text-gray-500">
                             Don&apos;t have an account?{' '}
-                            <TextLink
-                                as={Link}
+                            <Link
+                                as={RemixLink}
                                 to={{
                                     pathname: '/signup',
                                     search: searchParams.toString(),
                                 }}
+                                size="sm"
                             >
                                 Sign up
-                            </TextLink>
+                            </Link>
                         </div>
                     </div>
                 </ValidatedForm>

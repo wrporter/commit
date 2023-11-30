@@ -1,5 +1,5 @@
+import { Button } from '@nextui-org/react';
 import { Link } from '@remix-run/react';
-import { Button } from '@wesp-up/ui';
 
 import { useOptionalUser } from '~/utils';
 
@@ -20,11 +20,11 @@ export default function Index() {
                     </p>
                     <div className="mt-10 flex justify-center">
                         {user ? (
-                            <Button as={Link} to="/home">
+                            <Button color="primary" as={Link} to="/home">
                                 Take me home
                             </Button>
                         ) : (
-                            <Button as={Link} to="/signup">
+                            <Button color="primary" as={Link} to="/signup">
                                 Get started
                             </Button>
                         )}

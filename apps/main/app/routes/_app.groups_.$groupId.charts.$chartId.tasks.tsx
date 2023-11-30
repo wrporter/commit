@@ -13,7 +13,7 @@ import { getChartForUser } from '~/lib/models/chart.server';
 import { getGroupForUser } from '~/lib/models/group.server';
 import { createTask, deleteTask, updateTask } from '~/lib/models/task.server';
 import type { ResourceFormField, ResourceFormPropagatedProps } from '~/lib/ui/resource-pill';
-import { ResourceDialog, ResourcePill } from '~/lib/ui/resource-pill';
+import { ResourceModal, ResourcePill } from '~/lib/ui/resource-pill';
 import { loader as chartLoader } from '~/routes/_app.groups_.$groupId.charts.$chartId';
 
 export const loader = chartLoader;
@@ -72,6 +72,7 @@ const fields: ResourceFormField[] = [
             name: 'icon',
             placeholder: 'Icon',
             maxLength: 2,
+            isRequired: true,
         },
     },
     {
@@ -79,6 +80,7 @@ const fields: ResourceFormField[] = [
         textFieldProps: {
             name: 'name',
             placeholder: 'Vacuum',
+            isRequired: true,
         },
     },
 ];
@@ -103,7 +105,7 @@ export default function Page() {
 
     return (
         <section className="pt-4">
-            <ResourceDialog form={form} />
+            <ResourceModal form={form} />
 
             <div className="flex flex-col gap-4 mt-4">
                 {chart.tasks.map((task) => (
@@ -112,6 +114,10 @@ export default function Page() {
                         to={`/groups/${group.id}/charts/${chart.id}/tasks/${task.id}`}
                         form={{
                             ...form,
+                            defaultValues: {
+                                icon: task.icon,
+                                name: task.name,
+                            },
                             resource: {
                                 type: form.resource.type,
                                 id: task.id,

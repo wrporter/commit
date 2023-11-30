@@ -1,19 +1,23 @@
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import {
+    Button,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
+    Input,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+} from '@nextui-org/react';
 import type { ActionFunction, LoaderFunctionArgs } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import { Form, Link, useLoaderData } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
-import {
-    Button,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    DialogTrigger,
-    DropdownMenuItem,
-    Pill,
-    PillGroup,
-    PillMenu,
-    TextField,
-} from '@wesp-up/ui';
+import { Pill, PillGroup } from '@wesp-up/ui';
+import type { ReactNode } from 'react';
 import React, { useState } from 'react';
 import { ValidatedForm, useFormContext } from 'remix-validated-form';
 import { z } from 'zod';
@@ -73,15 +77,24 @@ export default function Page() {
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl">Groups</h2>
 
-                <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger asChild>
-                        <Button kind="primary">Create Group</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogTitle>Create Group</DialogTitle>
-                        <GroupFormDialog method="post" onSubmit={() => setOpen(false)} />
-                    </DialogContent>
-                </Dialog>
+                <Button color="primary" onClick={() => setOpen(true)}>
+                    Create Group
+                </Button>
+
+                <Modal isOpen={open} onOpenChange={setOpen}>
+                    <ModalContent>
+                        <ModalHeader>Create Group</ModalHeader>
+                        <GroupFormModal
+                            method="post"
+                            onSubmit={() => setOpen(false)}
+                            footer={
+                                <Button type="submit" color="primary">
+                                    Create
+                                </Button>
+                            }
+                        />
+                    </ModalContent>
+                </Modal>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -93,14 +106,16 @@ export default function Page() {
     );
 }
 
-function GroupFormDialog({
+function GroupFormModal({
     method,
     onSubmit,
     group,
+    footer,
 }: {
     method: 'post' | 'put';
     onSubmit: () => void;
     group?: Serialized<Group>;
+    footer: ReactNode;
 }) {
     const form = useFormContext('createGroupForm');
 
@@ -111,29 +126,27 @@ function GroupFormDialog({
             validator={validator}
             onSubmit={onSubmit}
         >
-            {group?.id ? <input type="hidden" name="groupId" value={group.id} /> : undefined}
+            <ModalBody>
+                {group?.id ? <input type="hidden" name="groupId" value={group.id} /> : undefined}
 
-            <div className="p-4">
-                <label className="flex flex-col-reverse gap-1">
-                    <TextField
-                        className="flex-grow peer"
-                        name="name"
-                        placeholder={group?.name}
-                        aria-describedby="name-error"
-                        autoComplete="off"
-                        data-1p-ignore
-                    />
-                    <span className="text-gray-600 peer-focus:text-blue-600">Name</span>
-                </label>
+                <Input
+                    label="Name"
+                    className="flex-grow peer"
+                    name="name"
+                    defaultValue={group?.name}
+                    placeholder={group?.name}
+                    aria-describedby="name-error"
+                    autoComplete="off"
+                    data-1p-ignore
+                />
                 {form.fieldErrors.name && (
                     <div className="mt-1 text-red-700" id="name-error">
                         {form.fieldErrors.name}
                     </div>
                 )}
-            </div>
-            <div className="flex p-4 justify-end border-t border-t-gray-300">
-                <Button type="submit">Create</Button>
-            </div>
+            </ModalBody>
+
+            <ModalFooter>{footer}</ModalFooter>
         </ValidatedForm>
     );
 }
@@ -160,40 +173,65 @@ function GroupPill({ group }: { group: Serialized<Group> }) {
                     </div>
                 </Pill>
 
-                <PillMenu>
-                    <DropdownMenuItem onSelect={() => setEditOpen(true)}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => setDeleteOpen(true)}>Delete</DropdownMenuItem>
-                </PillMenu>
+                <div className="flex flex-col border-l border-gray-400">
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <Button
+                                variant="flat"
+                                className="flex-grow border-none rounded-l-none rounded-r-sm p-1 min-w-10 w-10"
+                            >
+                                <ChevronDownIcon className="w-6 h-6" />
+                            </Button>
+                        </DropdownTrigger>
+                        <DropdownMenu>
+                            <DropdownItem onPress={() => setEditOpen(true)}>Edit</DropdownItem>
+                            <DropdownItem
+                                onPress={() => setDeleteOpen(true)}
+                                color="danger"
+                                className="text-danger"
+                            >
+                                Delete
+                            </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
             </PillGroup>
 
-            <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                <DialogContent>
-                    <DialogTitle>Edit Group: {group.name}</DialogTitle>
-                    <GroupFormDialog
+            <Modal isOpen={editOpen} onOpenChange={setEditOpen}>
+                <ModalContent>
+                    <ModalHeader>Edit Group: {group.name}</ModalHeader>
+                    <GroupFormModal
                         method="put"
                         onSubmit={() => setEditOpen(false)}
                         group={group}
+                        footer={
+                            <Button type="submit" color="primary">
+                                Save
+                            </Button>
+                        }
                     />
-                </DialogContent>
-            </Dialog>
+                </ModalContent>
+            </Modal>
 
-            <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                <DialogContent>
-                    <DialogTitle>Delete Group: {group.name}</DialogTitle>
+            <Modal isOpen={deleteOpen} onOpenChange={setDeleteOpen}>
+                <ModalContent>
+                    <ModalHeader>Delete Group: {group.name}</ModalHeader>
                     <Form method="delete" onSubmit={() => setDeleteOpen(false)}>
-                        <input type="hidden" name="groupId" value={group.id} />
-                        <div className="p-4">
-                            Are you sure you want to delete group{' '}
-                            <span className="font-bold">{group.name}</span>?
-                        </div>
-                        <div className="flex p-4 justify-end border-t border-t-gray-300">
-                            <Button type="submit" kind="danger">
+                        <ModalBody>
+                            <input type="hidden" name="groupId" value={group.id} />
+                            <p>
+                                Are you sure you want to delete group{' '}
+                                <span className="font-bold">{group.name}</span>?
+                            </p>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button type="submit" color="danger">
                                 Delete
                             </Button>
-                        </div>
+                        </ModalFooter>
                     </Form>
-                </DialogContent>
-            </Dialog>
+                </ModalContent>
+            </Modal>
         </>
     );
 }

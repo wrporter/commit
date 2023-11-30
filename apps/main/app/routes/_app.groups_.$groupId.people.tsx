@@ -11,7 +11,7 @@ import { requireUser } from '~/auth.server';
 import { getGroupForUser } from '~/lib/models/group.server';
 import { createPerson, deletePersonForUser, updatePersonForUser } from '~/lib/models/person.server';
 import type { ResourceFormField, ResourceFormPropagatedProps } from '~/lib/ui/resource-pill';
-import { ResourceDialog, ResourcePill } from '~/lib/ui/resource-pill';
+import { ResourceModal, ResourcePill } from '~/lib/ui/resource-pill';
 import { loader as groupLoader } from '~/routes/_app.groups_.$groupId';
 
 export const loader = groupLoader;
@@ -77,7 +77,7 @@ export default function Page() {
             <div className="flex justify-between items-center">
                 <h2 className="text-xl">People</h2>
 
-                <ResourceDialog form={form} />
+                <ResourceModal form={form} />
             </div>
 
             <div className="flex flex-col gap-4 mt-4">

@@ -1,7 +1,16 @@
+import { NextUIProvider } from '@nextui-org/react';
 import { cssBundleHref } from '@remix-run/css-bundle';
 import type { LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
+import {
+    Links,
+    LiveReload,
+    Meta,
+    Outlet,
+    Scripts,
+    ScrollRestoration,
+    useNavigate,
+} from '@remix-run/react';
 
 import { getUser } from '~/auth.server';
 import stylesheet from '~/tailwind.css';
@@ -24,6 +33,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export default function App() {
+    const navigate = useNavigate();
+
     return (
         <html lang="en" className="h-full">
             <head>
@@ -33,10 +44,12 @@ export default function App() {
                 <Links />
             </head>
             <body className="h-full">
-                <Outlet />
-                <ScrollRestoration />
-                <Scripts />
-                <LiveReload />
+                <NextUIProvider className="h-full" navigate={navigate}>
+                    <Outlet />
+                    <ScrollRestoration />
+                    <Scripts />
+                    <LiveReload />
+                </NextUIProvider>
             </body>
         </html>
     );

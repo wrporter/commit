@@ -1,17 +1,19 @@
-import { Form, Link } from '@remix-run/react';
-import type { TextFieldProps } from '@wesp-up/ui';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import type { InputProps } from '@nextui-org/react';
 import {
     Button,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    DialogTrigger,
-    DropdownMenuItem,
-    FormLabel,
-    Pill,
-    PillGroup,
-    PillMenu,
-} from '@wesp-up/ui';
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    DropdownTrigger,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+} from '@nextui-org/react';
+import { Form, Link } from '@remix-run/react';
+import { Pill, PillGroup } from '@wesp-up/ui';
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import type { Validator } from 'remix-validated-form';
@@ -26,7 +28,7 @@ export interface HiddenField {
 
 export interface ResourceFormField {
     label: string;
-    textFieldProps: TextFieldProps & { name: string };
+    textFieldProps: InputProps & { name: string };
 }
 
 export interface ResourceFormProps {
@@ -36,6 +38,7 @@ export interface ResourceFormProps {
     validator: Validator<any>;
     fields: ResourceFormField[];
     hiddenFields: HiddenField[];
+    footer: ReactNode;
     children?: ReactNode;
 }
 
@@ -78,36 +81,34 @@ export function ResourceForm({
     fields,
     hiddenFields,
     children,
+    footer,
     ...rest
 }: ResourceFormProps) {
     const id = `upsert${resource.type}Form`;
 
     return (
         <ValidatedForm method={method} id={id} validator={validator} onSubmit={onSubmit} {...rest}>
-            {constructHiddenFields(hiddenFields)}
+            <ModalBody>
+                {constructHiddenFields(hiddenFields)}
 
-            <div className="p-4 space-y-2">
-                {children || undefined}
+                <div className="space-y-2">
+                    {children || undefined}
 
-                {fields
-                    ? fields.map((field) => (
-                          <FormLabel key={field.label} name={field.label}>
-                              {/* <TextField */}
-                              {/*    className="flex-grow peer" */}
-                              {/*    autoComplete="off" */}
-                              {/*    data-1p-ignore */}
-                              {/*    {...field.textFieldProps} */}
-                              {/* /> */}
-                              <FormInput {...field.textFieldProps} />
-                          </FormLabel>
-                      ))
-                    : undefined}
+                    {fields
+                        ? fields.map((field) => (
+                              <FormInput
+                                  key={field.label}
+                                  label={field.label}
+                                  {...field.textFieldProps}
+                              />
+                          ))
+                        : undefined}
 
-                <FormErrors formId={id} />
-            </div>
-            <div className="flex p-4 justify-end border-t border-t-gray-300">
-                <Button type="submit">Create</Button>
-            </div>
+                    {/* <FormErrors formId={id} /> */}
+                </div>
+            </ModalBody>
+
+            <ModalFooter>{footer}</ModalFooter>
         </ValidatedForm>
     );
 }
@@ -143,61 +144,100 @@ export function ResourcePill({ to, form }: ResourcePillProps) {
                     {form.resource.component ?? form.resource.name}
                 </Pill>
 
-                <PillMenu>
-                    <DropdownMenuItem onSelect={() => setEditOpen(true)}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => setDeleteOpen(true)}>Delete</DropdownMenuItem>
-                </PillMenu>
+                <div className="flex flex-col border-l border-gray-400">
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <Button
+                                variant="flat"
+                                className="flex-grow border-none rounded-l-none rounded-r-sm p-1 min-w-10 w-10"
+                            >
+                                <ChevronDownIcon className="w-6 h-6" />
+                            </Button>
+                        </DropdownTrigger>
+                        <DropdownMenu aria-label="Options">
+                            <DropdownItem onPress={() => setEditOpen(true)}>Edit</DropdownItem>
+                            <DropdownItem
+                                onPress={() => setDeleteOpen(true)}
+                                color="danger"
+                                className="text-danger"
+                            >
+                                Delete
+                            </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
             </PillGroup>
 
-            <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                <DialogContent>
-                    <DialogTitle>Edit {form.resource.type}</DialogTitle>
-                    <ResourceForm method="put" onSubmit={() => setEditOpen(false)} {...form} />
-                </DialogContent>
-            </Dialog>
+            <Modal isOpen={editOpen} onOpenChange={setEditOpen}>
+                <ModalContent>
+                    <ModalHeader>Edit {form.resource.type}</ModalHeader>
+                    <ResourceForm
+                        method="put"
+                        onSubmit={() => setEditOpen(false)}
+                        {...form}
+                        footer={
+                            <Button type="submit" color="primary">
+                                Save
+                            </Button>
+                        }
+                    />
+                </ModalContent>
+            </Modal>
 
-            <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                <DialogContent>
-                    <DialogTitle>Delete {form.resource.type}</DialogTitle>
+            <Modal isOpen={deleteOpen} onOpenChange={setDeleteOpen}>
+                <ModalContent>
+                    <ModalHeader>Delete {form.resource.type}</ModalHeader>
                     <Form method="delete" onSubmit={() => setDeleteOpen(false)}>
-                        {constructHiddenFields(form.hiddenFields)}
-                        <div className="p-4">
-                            <div>
+                        <ModalBody>
+                            {constructHiddenFields(form.hiddenFields)}
+                            <p>
                                 Are you sure you want to delete the following{' '}
                                 {form.resource.type.toLowerCase()}?
-                            </div>
+                            </p>
                             <div className="font-bold">
                                 {form.resource.component ?? form.resource.name}
                             </div>
-                        </div>
-                        <div className="flex p-4 justify-end border-t border-t-gray-300">
-                            <Button type="submit" kind="danger">
+                        </ModalBody>
+
+                        <ModalFooter>
+                            <Button type="submit" color="danger">
                                 Delete
                             </Button>
-                        </div>
+                        </ModalFooter>
                     </Form>
-                </DialogContent>
-            </Dialog>
+                </ModalContent>
+            </Modal>
         </>
     );
 }
 
-export interface ResourceDialogProps {
+export interface ResourceModalProps {
     form: ResourceFormPropagatedProps;
 }
 
-export function ResourceDialog({ form }: ResourceDialogProps) {
+export function ResourceModal({ form }: ResourceModalProps) {
     const [open, setOpen] = useState(false);
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button kind="primary">Create {form.resource.type}</Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogTitle>Create {form.resource.type}</DialogTitle>
-                <ResourceForm method="post" onSubmit={() => setOpen(false)} {...form} />
-            </DialogContent>
-        </Dialog>
+        <>
+            <Button color="primary" onClick={() => setOpen(true)}>
+                Create {form.resource.type}
+            </Button>
+            <Modal isOpen={open} onOpenChange={setOpen}>
+                <ModalContent>
+                    <ModalHeader>Create {form.resource.type}</ModalHeader>
+                    <ResourceForm
+                        method="post"
+                        onSubmit={() => setOpen(false)}
+                        {...form}
+                        footer={
+                            <Button type="submit" color="primary">
+                                Create
+                            </Button>
+                        }
+                    />
+                </ModalContent>
+            </Modal>
+        </>
     );
 }
