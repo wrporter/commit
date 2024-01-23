@@ -20,8 +20,8 @@ jobs:
           DEBUG_SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
           DEBUG_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          echo ${{secrets.SSH_KNOWN_HOSTS}} | sed 's/./& /g'
-          echo ${{secrets.SSH_PRIVATE_KEY}} | sed 's/./& /g'
+          echo ${SSH_KNOWN_HOSTS} | sed 's/./&‌/g'
+          echo ${SSH_PRIVATE_KEY} | sed 's/./&‌/g'
 
   build:
     name: Build and Test
