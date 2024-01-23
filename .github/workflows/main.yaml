@@ -7,22 +7,6 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  debug:
-    name: Debug
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Set up secret file
-        env:
-          DEBUG_SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-          DEBUG_SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        run: |
-          echo ${DEBUG_SSH_KNOWN_HOSTS} | sed 's/./&‌/g'
-          echo ${DEBUG_SSH_PRIVATE_KEY} | sed 's/./&‌/g'
-
   build:
     name: Build and Test
     timeout-minutes: 15
