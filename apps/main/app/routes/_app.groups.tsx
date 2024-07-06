@@ -12,26 +12,24 @@ import {
     ModalFooter,
     ModalHeader,
 } from '@nextui-org/react';
-import type { ActionFunction, LoaderFunctionArgs } from '@remix-run/node';
-import { json, redirect } from '@remix-run/node';
+import  { type ActionFunction, type LoaderFunctionArgs , json, redirect } from '@remix-run/node';
 import { Form, Link, useLoaderData } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
 import { Pill, PillGroup } from '@wesp-up/ui';
-import type { ReactNode } from 'react';
-import React, { useState } from 'react';
+import React, { type ReactNode , useState } from 'react';
 import { ValidatedForm, useFormContext } from 'remix-validated-form';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
-import { requireUser } from '~/auth.server';
-import type { Group } from '~/lib/models/group.server';
-import {
+
+import { requireUser } from '#app/auth.server';
+import  { type Group ,
     createGroupForUser,
     deleteGroupForUser,
     getGroupsForUser,
     updateGroupForUser,
-} from '~/lib/models/group.server';
-import type { Serialized } from '~/lib/models/model';
+} from '#app/lib/models/group.server';
+import  { type Serialized } from '#app/lib/models/model';
 
 const validator = withZod(
     z.object({

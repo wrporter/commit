@@ -14,11 +14,10 @@ import {
 } from '@nextui-org/react';
 import { NavLink, Link as RemixLink, useLocation, useSubmit } from '@remix-run/react';
 import { forwardRef } from '@wesp-up/ui';
-import type { ElementType } from 'react';
-import React from 'react';
+import React, { type ElementType } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { useOptionalUser } from '~/utils';
+import { useOptionalUser } from '#app/utils';
 
 export function Header() {
     const user = useOptionalUser();

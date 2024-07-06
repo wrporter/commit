@@ -1,13 +1,12 @@
 import { ChartBarIcon, UserCircleIcon, UsersIcon } from '@heroicons/react/24/outline';
-import type { LoaderFunctionArgs } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import  { type LoaderFunctionArgs , json } from '@remix-run/node';
 import { Link, Outlet, useLoaderData } from '@remix-run/react';
 import { TextLink } from '@wesp-up/ui';
 import React from 'react';
 
-import { requireUser } from '~/auth.server';
-import { getGroupForUser } from '~/lib/models/group.server';
-import { MenuLink } from '~/lib/ui/header';
+import { requireUser } from '#app/auth.server';
+import { getGroupForUser } from '#app/lib/models/group.server';
+import { MenuLink } from '#app/lib/ui/header';
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     const user = await requireUser(request);

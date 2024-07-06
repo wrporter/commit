@@ -1,7 +1,7 @@
 import { useLoaderData } from '@remix-run/react';
 import React from 'react';
 
-import { loader as groupLoader } from '~/routes/_app.groups_.$groupId';
+import { loader as groupLoader } from '#app/routes/_app.groups_.$groupId';
 
 export const loader = groupLoader;
 

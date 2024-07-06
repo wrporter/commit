@@ -1,6 +1,6 @@
-import type { LoaderFunction } from '@remix-run/node';
+import  { type LoaderFunction } from '@remix-run/node';
 
-import { requireUser } from '~/auth.server';
+import { requireUser } from '#app/auth.server';
 
 export const loader: LoaderFunction = async ({ request, context }) => {
     await requireUser(request);

@@ -1,6 +1,5 @@
 import { Button, Checkbox, Input, Link } from '@nextui-org/react';
-import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import  { type ActionFunctionArgs, type LoaderFunctionArgs, type MetaFunction , json } from '@remix-run/node';
 import { Form, Link as RemixLink, useActionData, useSearchParams } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
 import * as React from 'react';
@@ -8,7 +7,7 @@ import { AuthorizationError } from 'remix-auth';
 import { ValidatedForm, useFormContext, validationError } from 'remix-validated-form';
 import { z } from 'zod';
 
-import { authenticator } from '~/auth.server';
+import { authenticator } from '#app/auth.server';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
     return authenticator.isAuthenticated(request, {

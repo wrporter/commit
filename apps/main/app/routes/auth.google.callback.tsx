@@ -1,6 +1,6 @@
-import type { LoaderFunction } from '@remix-run/node';
+import  { type LoaderFunction } from '@remix-run/node';
 
-import { authenticator } from '~/auth.server';
+import { authenticator } from '#app/auth.server';
 
 export const loader: LoaderFunction = ({ request }) => {
     return authenticator.authenticate('google', request, {

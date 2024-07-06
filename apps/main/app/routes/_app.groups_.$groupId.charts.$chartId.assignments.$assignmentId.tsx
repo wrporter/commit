@@ -1,11 +1,11 @@
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import  { type LoaderFunctionArgs } from '@remix-run/node';
 import invariant from 'tiny-invariant';
 
-import { requireUser } from '~/auth.server';
-import { getChartForUser } from '~/lib/models/chart.server';
-import { getGroupForUser } from '~/lib/models/group.server';
-import { deleteTaskAssignment } from '~/lib/models/task.server';
-import { loader as chartLoader } from '~/routes/_app.groups_.$groupId.charts.$chartId';
+import { requireUser } from '#app/auth.server';
+import { getChartForUser } from '#app/lib/models/chart.server';
+import { getGroupForUser } from '#app/lib/models/group.server';
+import { deleteTaskAssignment } from '#app/lib/models/task.server';
+import { loader as chartLoader } from '#app/routes/_app.groups_.$groupId.charts.$chartId';
 
 export const loader = chartLoader;
 

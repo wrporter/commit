@@ -1,5 +1,4 @@
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import  { type ActionFunctionArgs , json } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
 import React from 'react';
@@ -8,13 +7,12 @@ import invariant from 'tiny-invariant';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
-import { requireUser } from '~/auth.server';
-import { getChartForUser } from '~/lib/models/chart.server';
-import { getGroupForUser } from '~/lib/models/group.server';
-import { createTask, deleteTask, updateTask } from '~/lib/models/task.server';
-import type { ResourceFormField, ResourceFormPropagatedProps } from '~/lib/ui/resource-pill';
-import { ResourceModal, ResourcePill } from '~/lib/ui/resource-pill';
-import { loader as chartLoader } from '~/routes/_app.groups_.$groupId.charts.$chartId';
+import { requireUser } from '#app/auth.server';
+import { getChartForUser } from '#app/lib/models/chart.server';
+import { getGroupForUser } from '#app/lib/models/group.server';
+import { createTask, deleteTask, updateTask } from '#app/lib/models/task.server';
+import  { type ResourceFormField, type ResourceFormPropagatedProps , ResourceModal, ResourcePill } from '#app/lib/ui/resource-pill';
+import { loader as chartLoader } from '#app/routes/_app.groups_.$groupId.charts.$chartId';
 
 export const loader = chartLoader;
 

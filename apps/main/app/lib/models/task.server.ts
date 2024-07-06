@@ -1,8 +1,8 @@
-import type { TaskAssignment, TaskReward, TaskStatus } from '@prisma/client';
+import  { type TaskAssignment, type TaskReward, type TaskStatus } from '@prisma/client';
 
-import type { Chart } from '~/lib/models/chart.server';
-import type { User } from '~/lib/models/user.server';
-import { prisma } from '~/prisma.server';
+import  { type Chart } from '#app/lib/models/chart.server';
+import  { type User } from '#app/lib/models/user.server';
+import { prisma } from '#app/prisma.server';
 
 export interface Task {
     id: number;

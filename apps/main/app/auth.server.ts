@@ -1,14 +1,14 @@
-import type { User } from '@prisma/client';
+import  { type User } from '@prisma/client';
 import { log } from '@wesp-up/express-remix';
 import { Authenticator } from 'remix-auth';
 import { FormStrategy } from 'remix-auth-form';
 import { GoogleStrategy } from 'remix-auth-google';
 import invariant from 'tiny-invariant';
 
-import { sessionStorage } from './session.server';
 
-import { createUser, getUserByEmail, verifyLogin } from '~/lib/models/user.server';
-import { env } from '~/server/env.server';
+import { createUser, getUserByEmail, verifyLogin } from '#app/lib/models/user.server';
+import { env } from '#server/env.server';
+import { sessionStorage } from './session.server';
 
 export const AUTH_ERROR_KEY = 'auth-error-key';
 

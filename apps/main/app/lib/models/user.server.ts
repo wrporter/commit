@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 
-import type { Group } from '~/lib/models/group.server';
-import { prisma } from '~/prisma.server';
+import  { type Group } from '#app/lib/models/group.server';
+import { prisma } from '#app/prisma.server';
 
 export interface Password {
     id: number;

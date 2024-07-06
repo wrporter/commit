@@ -1,27 +1,26 @@
-import react from '@vitejs/plugin-react';
-import tsconfigPaths from 'vite-tsconfig-paths';
-import { defineConfig } from 'vitest/config';
+/// <reference types="vitest" />
+
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
-    plugins: [react(), tsconfigPaths()],
+    plugins: [react()],
+    css: { postcss: { plugins: [] } },
     test: {
-        globals: true,
-        environment: 'happy-dom',
-        setupFiles: ['./test/setup-env.test.ts'],
-        include: ['./{app,server}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-        watchExclude: ['.*\\/node_modules\\/.*', '.*\\/build\\/.*'],
+        include: ['{app,server}/**/*.test.{ts,tsx}'],
+        setupFiles: ['./tests/setup-test-env.ts'],
+        restoreMocks: true,
+
+        // TODO: Add reporters
+        // TODO: Consider using happy-dom
+
         coverage: {
-            reporter: ['text', 'lcov', 'cobertura'],
-            include: ['{app,server}/**'],
-            exclude: ['**/build', '**/*.{generated,test}.*'],
-            clean: true,
+            include: ['{app,server}/**/*.{ts,tsx}'],
+            exclude: ['*.{generated,config,test}.*'],
             all: true,
-            statements: 0,
-            branches: 0,
-            functions: 0,
-            lines: 0,
+
+            // TODO: Add reporters
+            // TODO: Add thresholds
         },
-        reporters: ['default', 'junit'],
-        outputFile: 'junit.xml',
     },
-});
+})

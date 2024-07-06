@@ -1,8 +1,7 @@
-import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { redirect } from '@remix-run/node';
+import  { type ActionFunction, type LoaderFunction , redirect } from '@remix-run/node';
 
-import { authenticator, requireUser } from '~/auth.server';
-import { deleteUserByEmail } from '~/lib/models/user.server';
+import { authenticator, requireUser } from '#app/auth.server';
+import { deleteUserByEmail } from '#app/lib/models/user.server';
 
 export const action: ActionFunction = async ({ request }) => {
     const user = await requireUser(request);

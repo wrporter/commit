@@ -1,8 +1,8 @@
-import type { Group } from '~/lib/models/group.server';
-import type { Person } from '~/lib/models/person.server';
-import type { Task } from '~/lib/models/task.server';
-import type { User } from '~/lib/models/user.server';
-import { prisma } from '~/prisma.server';
+import  { type Group } from '#app/lib/models/group.server';
+import  { type Person } from '#app/lib/models/person.server';
+import  { type Task } from '#app/lib/models/task.server';
+import  { type User } from '#app/lib/models/user.server';
+import { prisma } from '#app/prisma.server';
 
 export interface Chart {
     id: number;

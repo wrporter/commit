@@ -1,5 +1,4 @@
-import type { ActionFunctionArgs } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import  { type ActionFunctionArgs , json } from '@remix-run/node';
 import { Outlet, useLoaderData } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
 import React from 'react';
@@ -7,12 +6,11 @@ import invariant from 'tiny-invariant';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
-import { requireUser } from '~/auth.server';
-import { createChart, deleteChart, updateChart } from '~/lib/models/chart.server';
-import { getGroupForUser } from '~/lib/models/group.server';
-import type { ResourceFormField, ResourceFormPropagatedProps } from '~/lib/ui/resource-pill';
-import { ResourceModal, ResourcePill } from '~/lib/ui/resource-pill';
-import { loader as groupLoader } from '~/routes/_app.groups_.$groupId';
+import { requireUser } from '#app/auth.server';
+import { createChart, deleteChart, updateChart } from '#app/lib/models/chart.server';
+import { getGroupForUser } from '#app/lib/models/group.server';
+import  { type ResourceFormField, type ResourceFormPropagatedProps , ResourceModal, ResourcePill } from '#app/lib/ui/resource-pill';
+import { loader as groupLoader } from '#app/routes/_app.groups_.$groupId';
 
 export const loader = groupLoader;
 

@@ -1,6 +1,5 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import type { InputProps } from '@nextui-org/react';
-import {
+import  { type InputProps ,
     Button,
     Dropdown,
     DropdownItem,
@@ -14,12 +13,10 @@ import {
 } from '@nextui-org/react';
 import { Form, Link } from '@remix-run/react';
 import { Pill, PillGroup } from '@wesp-up/ui';
-import type { ReactNode } from 'react';
-import { useState } from 'react';
-import type { Validator } from 'remix-validated-form';
-import { ValidatedForm, useFormContext } from 'remix-validated-form';
+import  { type ReactNode , useState } from 'react';
+import  { type Validator , ValidatedForm, useFormContext } from 'remix-validated-form';
 
-import { FormInput } from '~/lib/ui/form-input';
+import { FormInput } from '#app/lib/ui/form-input';
 
 export interface HiddenField {
     name: string;

@@ -1,8 +1,7 @@
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { Button } from '@nextui-org/react';
-import type { Person, Task } from '@prisma/client';
-import type { LoaderFunctionArgs } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import  { type Person, type Task } from '@prisma/client';
+import  { type LoaderFunctionArgs , json } from '@remix-run/node';
 import { Form, useLoaderData } from '@remix-run/react';
 import { withZod } from '@remix-validated-form/with-zod';
 import React from 'react';
@@ -11,16 +10,16 @@ import invariant from 'tiny-invariant';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 
-import { requireUser } from '~/auth.server';
-import { groupBy } from '~/lib/group-by';
-import { getChartForUser } from '~/lib/models/chart.server';
-import { DAYS } from '~/lib/models/DAYS';
-import { getGroupForUser } from '~/lib/models/group.server';
-import type { Serialized } from '~/lib/models/model';
-import { createTaskAssignment } from '~/lib/models/task.server';
-import { ResourceAutocomplete } from '~/lib/ui/resource-autocomplete';
-import { FormErrors } from '~/lib/ui/resource-pill';
-import { loader as chartLoader } from '~/routes/_app.groups_.$groupId.charts.$chartId';
+import { requireUser } from '#app/auth.server';
+import { groupBy } from '#app/lib/group-by';
+import { getChartForUser } from '#app/lib/models/chart.server';
+import { DAYS } from '#app/lib/models/DAYS';
+import { getGroupForUser } from '#app/lib/models/group.server';
+import  { type Serialized } from '#app/lib/models/model';
+import { createTaskAssignment } from '#app/lib/models/task.server';
+import { ResourceAutocomplete } from '#app/lib/ui/resource-autocomplete';
+import { FormErrors } from '#app/lib/ui/resource-pill';
+import { loader as chartLoader } from '#app/routes/_app.groups_.$groupId.charts.$chartId';
 
 export const loader = chartLoader;
 

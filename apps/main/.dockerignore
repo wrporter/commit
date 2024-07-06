@@ -4,7 +4,7 @@
 !public
 public/build
 !server
-!test
+!tests
 !.eslintignore
 !.eslintrc.js
 !.npmrc

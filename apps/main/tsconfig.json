@@ -1,12 +1,11 @@
 {
-  "extends": "@wesp-up/tsconfig/remix.json",
-  "include": ["**/*", ".*",],
-  "exclude": ["**/build", "coverage"],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "extends": ["@epic-web/config/typescript"],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"],
-      "~/server/*": ["./server/*"]
+      "#app/*": ["./app/*"],
+      "#server/*": ["./server/*"],
+      "#tests/*": ["./tests/*"]
     }
   }
 }

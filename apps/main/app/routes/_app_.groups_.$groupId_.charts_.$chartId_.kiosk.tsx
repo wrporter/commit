@@ -1,15 +1,15 @@
-import type { TaskReward } from '@prisma/client';
+import  { type TaskReward } from '@prisma/client';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Link, useLoaderData } from '@remix-run/react';
 import { TextLink } from '@wesp-up/ui';
 import { useState } from 'react';
 import { tv } from 'tailwind-variants';
 
-import { DAYS } from '~/lib/models/DAYS';
-import type { Serialized } from '~/lib/models/model';
-import type { Task } from '~/lib/models/task.server';
-import { Currency } from '~/lib/ui/currency';
-import { loader as chartLoader } from '~/routes/_app.groups_.$groupId.charts.$chartId';
+import { DAYS } from '#app/lib/models/DAYS';
+import  { type Serialized } from '#app/lib/models/model';
+import  { type Task } from '#app/lib/models/task.server';
+import { Currency } from '#app/lib/ui/currency';
+import { loader as chartLoader } from '#app/routes/_app.groups_.$groupId.charts.$chartId';
 
 export const loader = chartLoader;
 

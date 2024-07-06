@@ -1,7 +1,6 @@
-import type { Person } from '~/lib/models/person.server';
-import type { User } from '~/lib/models/user.server';
-import { getUserByEmail } from '~/lib/models/user.server';
-import { prisma } from '~/prisma.server';
+import  { type Person } from '#app/lib/models/person.server';
+import  { type User , getUserByEmail } from '#app/lib/models/user.server';
+import { prisma } from '#app/prisma.server';
 
 export interface Group {
     id: number;

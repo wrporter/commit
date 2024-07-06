@@ -1,7 +1,5 @@
 import { NextUIProvider } from '@nextui-org/react';
-import { cssBundleHref } from '@remix-run/css-bundle';
-import type { LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import  { type LinksFunction, type LoaderFunction, type MetaFunction , json } from '@remix-run/node';
 import {
     Links,
     LiveReload,
@@ -12,12 +10,11 @@ import {
     useNavigate,
 } from '@remix-run/react';
 
-import { getUser } from '~/auth.server';
-import stylesheet from '~/tailwind.css';
+import { getUser } from './auth.server';
+import tailwindStyleSheetUrl from './styles/tailwind.css?url'
 
 export const links: LinksFunction = () => [
-    { rel: 'stylesheet', href: stylesheet },
-    ...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
+    { rel: 'stylesheet', href: tailwindStyleSheetUrl },
 ];
 
 export const meta: MetaFunction = () => [

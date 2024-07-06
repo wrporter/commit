@@ -1,7 +1,7 @@
 import { Button } from '@nextui-org/react';
 import { Link } from '@remix-run/react';
 
-import { useOptionalUser } from '~/utils';
+import { useOptionalUser } from '#app/utils';
 
 export default function Index() {
     const user = useOptionalUser();

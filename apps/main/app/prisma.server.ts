@@ -1,8 +1,8 @@
-/* eslint-disable no-underscore-dangle,@typescript-eslint/naming-convention,no-var,vars-on-top,import/no-mutable-exports */
+ 
 import { PrismaClient } from '@prisma/client';
 import { log } from '@wesp-up/express-remix';
 
-import { env } from '~/server/env.server';
+import { env } from '#server/env.server';
 
 let prisma: PrismaClient;
 

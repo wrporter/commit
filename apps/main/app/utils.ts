@@ -1,7 +1,7 @@
 import { useMatches } from '@remix-run/react';
 import { useMemo } from 'react';
 
-import type { User } from '~/lib/models/user.server';
+import  { type User } from '#app/lib/models/user.server';
 
 /**
  * This base hook is used in other hooks to quickly search for specific data
@@ -18,7 +18,7 @@ export function useMatchesData(id: string): Record<string, unknown> | undefined 
     return route?.data as Record<string, unknown>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 function isUser(user: any): user is User {
     return user && typeof user === 'object' && typeof user.email === 'string';
 }

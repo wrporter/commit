@@ -1,3 +1,0 @@
-{
-    "extends": "@wesp-up/tsconfig/node.json"
-}

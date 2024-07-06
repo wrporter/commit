@@ -3,8 +3,8 @@ import { useLoaderData } from '@remix-run/react';
 import { Pill, PillGroup } from '@wesp-up/ui';
 import React, { useState } from 'react';
 
-import { loader as groupLoader } from '~/routes/_app.groups_.$groupId';
-import { useUser } from '~/utils';
+import { loader as groupLoader } from '#app/routes/_app.groups_.$groupId';
+import { useUser } from '#app/utils';
 
 export const loader = groupLoader;
 
