@@ -1,9 +1,13 @@
-import  { type ActionFunction, type LoaderFunction , redirect } from '@remix-run/node';
+import {
+  type ActionFunction,
+  type LoaderFunction,
+  redirect,
+} from "@remix-run/node";
 
-import { authenticator } from '#app/auth.server';
+import { authenticator } from "#app/auth.server";
 
-export const loader: LoaderFunction = () => redirect('/login');
+export const loader: LoaderFunction = () => redirect("/login");
 
 export const action: ActionFunction = ({ request }) => {
-    return authenticator.authenticate('google', request);
+  return authenticator.authenticate("google", request);
 };

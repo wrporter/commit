@@ -22,4 +22,4 @@
 ### Family
 
 - Editing the family and chores is only available behind a passcode.
-- Viewing a chore chart is behind a passcode. 
+- Viewing a chore chart is behind a passcode.

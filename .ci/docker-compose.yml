@@ -13,7 +13,7 @@ services:
       - SITE_PROTOCOL=https
       - SITE_HOST=commit.epicbits.dev
       - SITE_PORT=
-      - DATABASE_URL=postgresql://postgres:postgres@commit-postgres:5432/commit?authSource=admin&directConnection=true
+      - DATABASE_URL=postgresql://postgres:postgres@commit-postgres:5432/commit
       - NODE_ENV=production
     ports:
       - 2017:3000

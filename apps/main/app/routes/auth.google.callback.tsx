@@ -1,10 +1,10 @@
-import  { type LoaderFunction } from '@remix-run/node';
+import { type LoaderFunction } from "@remix-run/node";
 
-import { authenticator } from '#app/auth.server';
+import { authenticator } from "#app/auth.server";
 
 export const loader: LoaderFunction = ({ request }) => {
-    return authenticator.authenticate('google', request, {
-        successRedirect: '/home',
-        failureRedirect: '/login',
-    });
+  return authenticator.authenticate("google", request, {
+    successRedirect: "/home",
+    failureRedirect: "/login",
+  });
 };

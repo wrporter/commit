@@ -1,56 +1,59 @@
-import  { type TaskAssignment, type TaskReward } from '@prisma/client';
+import { type TaskAssignment, type TaskReward } from "@prisma/client";
 
-import  { type Chart } from '#app/lib/models/chart.server';
-import  { type Group } from '#app/lib/models/group.server';
-import  { type User } from '#app/lib/models/user.server';
-import { prisma } from '#app/prisma.server';
+import { type Chart } from "#app/lib/models/chart.server";
+import { type Group } from "#app/lib/models/group.server";
+import { type User } from "#app/lib/models/user.server";
+import { prisma } from "#app/prisma.server";
 
 export interface Person {
-    id: number;
-    name: string;
-    createdAt: Date;
-    updatedAt: Date;
+  id: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
 
-    groups: Group[];
-    charts: Chart[];
-    taskAssignments: TaskAssignment[];
-    taskRewards: TaskReward[];
-    // taskStatuses: TaskStatus[];
-    // commissions: Commission[];
+  groups: Group[];
+  charts: Chart[];
+  taskAssignments: TaskAssignment[];
+  taskRewards: TaskReward[];
+  // taskStatuses: TaskStatus[];
+  // commissions: Commission[];
 }
 
-export async function getPeopleForUser(userId: User['id']) {
-    return prisma.person.findMany({
-        where: { groups: { every: { owners: { every: { id: userId } } } } },
-        include: { groups: true },
-    });
+export async function getPeopleForUser(userId: User["id"]) {
+  return prisma.person.findMany({
+    where: { groups: { every: { owners: { every: { id: userId } } } } },
+    include: { groups: true },
+  });
 }
 
-export async function createPerson(groupId: Group['id'], name: Person['name']) {
-    return prisma.person.create({
-        data: { name, groups: { connect: { id: groupId } } },
-    });
+export async function createPerson(groupId: Group["id"], name: Person["name"]) {
+  return prisma.person.create({
+    data: { name, groups: { connect: { id: groupId } } },
+  });
 }
 
 export async function updatePersonForUser(
-    userId: User['id'],
-    personId: Person['id'],
-    name: Person['name'],
+  userId: User["id"],
+  personId: Person["id"],
+  name: Person["name"]
 ) {
-    return prisma.person.updateMany({
-        where: {
-            id: personId,
-            groups: { every: { owners: { every: { id: userId } } } },
-        },
-        data: { name },
-    });
+  return prisma.person.updateMany({
+    where: {
+      id: personId,
+      groups: { every: { owners: { every: { id: userId } } } },
+    },
+    data: { name },
+  });
 }
 
-export async function deletePersonForUser(userId: User['id'], personId: Person['id']) {
-    return prisma.person.deleteMany({
-        where: {
-            id: personId,
-            groups: { every: { owners: { every: { id: userId } } } },
-        },
-    });
+export async function deletePersonForUser(
+  userId: User["id"],
+  personId: Person["id"]
+) {
+  return prisma.person.deleteMany({
+    where: {
+      id: personId,
+      groups: { every: { owners: { every: { id: userId } } } },
+    },
+  });
 }
