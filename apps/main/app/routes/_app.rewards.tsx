@@ -1,31 +1,18 @@
 import { Button, Divider } from "@nextui-org/react";
-import {
-  type ActionFunctionArgs,
-  json,
-  type LoaderFunctionArgs,
-} from "@remix-run/node";
-
-import { useLoaderData } from "@remix-run/react";
-import { ValidatedForm } from "remix-validated-form";
+import { ValidatedForm } from "@rvf/react-router";
+import { type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 import invariant from "tiny-invariant";
-import { requireUser } from "#app/auth.server.ts";
-import { FormInput } from "#app/lib/ui/form-input.tsx";
-import {
-  choreValidator,
-  personValidator,
-  rewardValidator,
-} from "./_app.home/validators";
-import {
-  type Chore,
-  createChore,
-  getChores,
-} from "#app/lib/repository/chore.server.ts";
-import { createReward, getRewards } from "#app/lib/repository/reward.server.ts";
-import { ResourceAutocomplete } from "#app/lib/ui/resource-autocomplete.tsx";
-import type { Serialized } from "#app/lib/models/model.ts";
-import { getPeople, Person } from "#app/lib/repository/person.server.ts";
-import { Currency } from "#app/lib/ui/currency.tsx";
-import { getAssignments } from "#app/lib/repository/assignment.server.ts";
+
+import type { Route } from "./+types/_app.rewards.js";
+import { rewardValidator } from "./_app.home/validators.js";
+
+import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { type Chore, getChores } from "~/lib/repository/chore.server.js";
+import { type Person, getPeople } from "~/lib/repository/person.server.js";
+import { createReward, getRewards } from "~/lib/repository/reward.server.js";
+import { Currency } from "~/lib/ui/currency.js";
+import { FormInput } from "~/lib/ui/form-input.js";
+import { ResourceAutocomplete } from "~/lib/ui/resource-autocomplete.js";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
@@ -34,7 +21,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const chores = await getChores(user.id);
   const rewards = await getRewards(user.id);
 
-  return json({ people, chores, rewards });
+  return { people, chores, rewards };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -48,9 +35,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
-export default function Page() {
-  const data = useLoaderData<typeof loader>();
-
+export default function Component({ loaderData }: Route.ComponentProps) {
   return (
     <section className="p-4">
       <div className="flex flex-col">
@@ -61,19 +46,18 @@ export default function Page() {
         <ValidatedForm
           validator={rewardValidator}
           method="post"
-          subaction="createReward"
           className="space-y-2"
         >
-          <ResourceAutocomplete<Serialized<Person>>
+          <ResourceAutocomplete<Person>
             label="Person"
             name="person"
             placeholder="Select person"
             isRequired
             displayValue={(person) => person?.name ?? ""}
-            resources={data.people}
+            resources={loaderData.people}
           />
 
-          <ResourceAutocomplete<Serialized<Chore>>
+          <ResourceAutocomplete<Chore>
             label="Chore"
             name="chore"
             placeholder="Select chore"
@@ -81,7 +65,7 @@ export default function Page() {
             displayValue={(chore) =>
               chore ? `${chore.icon} ${chore.name}` : ""
             }
-            resources={data.chores}
+            resources={loaderData.chores}
           />
 
           <FormInput
@@ -109,11 +93,11 @@ export default function Page() {
       <Divider className="my-4" />
 
       <div className="flex flex-col gap-4 mt-4">
-        {data.rewards.map((reward) => {
-          const chore = data.chores.find(
+        {loaderData.rewards.map((reward) => {
+          const chore = loaderData.chores.find(
             (chore) => chore.id === reward.choreId
           );
-          const person = data.people.find(
+          const person = loaderData.people.find(
             (person) => person.id === reward.personId
           );
           const key = `${reward.personId}_${reward.choreId}`;

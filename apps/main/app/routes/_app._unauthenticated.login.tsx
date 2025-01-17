@@ -1,32 +1,34 @@
 import { Button, Checkbox, Input, Link } from "@nextui-org/react";
-import {
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-  json,
-} from "@remix-run/node";
+import { ValidatedForm, validationError } from "@rvf/react-router";
+import { withZod } from "@rvf/zod";
+import * as React from "react";
 import {
   Form,
+  type MetaFunction,
   Link as RemixLink,
-  useActionData,
+  data,
+  redirect,
   useSearchParams,
-} from "@remix-run/react";
-import { withZod } from "@remix-validated-form/with-zod";
-import * as React from "react";
-import { AuthorizationError } from "remix-auth";
-import {
-  ValidatedForm,
-  useFormContext,
-  validationError,
-} from "remix-validated-form";
+} from "react-router";
 import { z } from "zod";
 
-import { authenticator } from "#app/auth.server";
+import type { Route } from "./+types/_app._unauthenticated.login.js";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return authenticator.isAuthenticated(request, {
-    successRedirect: "/home",
-  });
+import {
+  AuthorizationError,
+  authenticator,
+} from "~/lib/authentication/authentication.server.js";
+import { sessionStorage } from "~/session.server.js";
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie")
+  );
+  const user = session.get("user");
+  if (user) {
+    throw redirect("/home");
+  }
+  return null;
 };
 
 const validator = withZod(
@@ -40,8 +42,8 @@ const validator = withZod(
   })
 );
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
+export const action = async ({ request }: Route.ActionArgs) => {
+  const formData = await request.clone().formData();
   const form = await validator.validate(formData);
   if (form.error) {
     return validationError(form.error);
@@ -49,14 +51,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const { redirectTo } = form.data;
 
   try {
-    return await authenticator.authenticate("basic", request, {
-      successRedirect: redirectTo,
-      context: { formData },
+    const user = await authenticator.authenticate("basic", request);
+
+    const session = await sessionStorage.getSession(
+      request.headers.get("cookie")
+    );
+    session.set("user", user);
+
+    throw redirect(redirectTo, {
+      headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
     });
   } catch (error) {
-    if (error instanceof Response) return error;
     if (error instanceof AuthorizationError) {
-      return json(
+      return data(
         { passwordFailure: "Invalid email or password." },
         { status: 401 }
       );
@@ -67,11 +74,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export const meta: MetaFunction = () => [{ title: "Commit: Login" }];
 
-export default function LoginPage() {
+export default function Component({ actionData }: Route.ComponentProps) {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") || "/home";
-  const form = useFormContext("loginForm");
-  const actionData = useActionData<{ passwordFailure?: string }>();
 
   return (
     <>
@@ -98,73 +103,66 @@ export default function LoginPage() {
 
       <div className="mx-auto w-full max-w-md rounded bg-background px-8 py-8 drop-shadow-lg">
         <ValidatedForm
-          id="loginForm"
           validator={validator}
           method="post"
-          className="flex flex-col gap-6"
+          className="flex flex-col gap-4"
           noValidate
         >
-          <div>
-            <Input
-              label="Email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              aria-describedby="email-error"
-            />
-            {form.fieldErrors.email && (
-              <div className="pt-1 text-red-700" id="email-error">
-                {form.fieldErrors.email}
+          {(form) => (
+            <>
+              <Input
+                label="Email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                isInvalid={Boolean(form.formState.fieldErrors.email)}
+                errorMessage={form.formState.fieldErrors.email}
+              />
+
+              <Input
+                label="Password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                isInvalid={Boolean(
+                  form.formState.fieldErrors.password ||
+                    // @ts-ignore - The type is not getting inferred properly.
+                    actionData?.passwordFailure
+                )}
+                errorMessage={
+                  form.formState.fieldErrors.password ||
+                  // @ts-ignore - The type is not getting inferred properly.
+                  actionData?.passwordFailure
+                }
+              />
+
+              <input type="hidden" name="redirectTo" value={redirectTo} />
+              <Button type="submit" color="primary" className="w-full">
+                Log in
+              </Button>
+
+              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+                <div className="flex items-center">
+                  <Checkbox id="remember" name="remember" size="sm">
+                    Remember me
+                  </Checkbox>
+                </div>
+                <div className="text-center text-sm text-gray-500">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    as={RemixLink}
+                    to={{
+                      pathname: "/signup",
+                      search: searchParams.toString(),
+                    }}
+                    size="sm"
+                  >
+                    Sign up
+                  </Link>
+                </div>
               </div>
-            )}
-          </div>
-
-          <div>
-            <Input
-              label="Password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              aria-describedby="password-error"
-            />
-            {form.fieldErrors.password && (
-              <div className="pt-1 text-red-700" id="password-error">
-                {form.fieldErrors.password}
-              </div>
-            )}
-
-            {actionData?.passwordFailure && (
-              <div className="pt-1 text-red-700">
-                {actionData.passwordFailure}
-              </div>
-            )}
-          </div>
-
-          <input type="hidden" name="redirectTo" value={redirectTo} />
-          <Button type="submit" color="primary" className="w-full">
-            Log in
-          </Button>
-
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:justify-between">
-            <div className="flex items-center">
-              <Checkbox id="remember" name="remember" size="sm">
-                Remember me
-              </Checkbox>
-            </div>
-            <div className="text-center text-sm text-gray-500">
-              Don&apos;t have an account?{" "}
-              <Link
-                as={RemixLink}
-                to={{
-                  pathname: "/signup",
-                  search: searchParams.toString(),
-                }}
-                size="sm"
-              >
-                Sign up
-              </Link>
-            </div>
-          </div>
+            </>
+          )}
         </ValidatedForm>
       </div>
     </>

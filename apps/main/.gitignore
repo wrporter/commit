@@ -6,10 +6,7 @@ node_modules
 /server-build
 .env
 .cache
-
-/prisma/data.db
-/prisma/data.db-journal
-/tests/prisma
+.react-router
 
 /test-results/
 /playwright-report/

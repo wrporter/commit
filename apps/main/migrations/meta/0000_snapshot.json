@@ -53,12 +53,8 @@
           "name": "chore_assignments_user_id_users_id_fk",
           "tableFrom": "chore_assignments",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -66,12 +62,8 @@
           "name": "chore_assignments_person_id_people_id_fk",
           "tableFrom": "chore_assignments",
           "tableTo": "people",
-          "columnsFrom": [
-            "person_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["person_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -79,12 +71,8 @@
           "name": "chore_assignments_chore_id_chores_id_fk",
           "tableFrom": "chore_assignments",
           "tableTo": "chores",
-          "columnsFrom": [
-            "chore_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chore_id"],
+          "columnsTo": ["id"],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         }
@@ -92,11 +80,7 @@
       "compositePrimaryKeys": {
         "chore_assignment_pkey": {
           "name": "chore_assignment_pkey",
-          "columns": [
-            "person_id",
-            "chore_id",
-            "day"
-          ]
+          "columns": ["person_id", "chore_id", "day"]
         }
       },
       "uniqueConstraints": {}
@@ -150,12 +134,8 @@
           "name": "chore_rewards_user_id_users_id_fk",
           "tableFrom": "chore_rewards",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -163,12 +143,8 @@
           "name": "chore_rewards_person_id_people_id_fk",
           "tableFrom": "chore_rewards",
           "tableTo": "people",
-          "columnsFrom": [
-            "person_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["person_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -176,12 +152,8 @@
           "name": "chore_rewards_chore_id_chores_id_fk",
           "tableFrom": "chore_rewards",
           "tableTo": "chores",
-          "columnsFrom": [
-            "chore_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chore_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -189,10 +161,7 @@
       "compositePrimaryKeys": {
         "chore_rewards_pkey": {
           "name": "chore_rewards_pkey",
-          "columns": [
-            "person_id",
-            "chore_id"
-          ]
+          "columns": ["person_id", "chore_id"]
         }
       },
       "uniqueConstraints": {}
@@ -252,12 +221,8 @@
           "name": "chore_statuses_user_id_users_id_fk",
           "tableFrom": "chore_statuses",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -265,12 +230,8 @@
           "name": "chore_statuses_person_id_people_id_fk",
           "tableFrom": "chore_statuses",
           "tableTo": "people",
-          "columnsFrom": [
-            "person_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["person_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -278,12 +239,8 @@
           "name": "chore_statuses_chore_id_chores_id_fk",
           "tableFrom": "chore_statuses",
           "tableTo": "chores",
-          "columnsFrom": [
-            "chore_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chore_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -291,11 +248,7 @@
       "compositePrimaryKeys": {
         "chore_statuses_pkey": {
           "name": "chore_statuses_pkey",
-          "columns": [
-            "person_id",
-            "chore_id",
-            "day"
-          ]
+          "columns": ["person_id", "chore_id", "day"]
         }
       },
       "uniqueConstraints": {}
@@ -350,12 +303,8 @@
           "name": "chores_user_id_users_id_fk",
           "tableFrom": "chores",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -412,12 +361,8 @@
           "name": "commissions_user_id_users_id_fk",
           "tableFrom": "commissions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -425,12 +370,8 @@
           "name": "commissions_person_id_people_id_fk",
           "tableFrom": "commissions",
           "tableTo": "people",
-          "columnsFrom": [
-            "person_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["person_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
@@ -488,12 +429,8 @@
           "name": "people_user_id_users_id_fk",
           "tableFrom": "people",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }

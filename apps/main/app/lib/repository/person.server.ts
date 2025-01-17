@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "#app/lib/repository/db.server.ts";
-import { people } from "#server/db-schema.server.ts";
+
+import { people } from "#server/db-schema.server.js";
+import { db } from "~/lib/repository/db.server.js";
 
 export type Person = typeof people.$inferSelect;
 
@@ -13,7 +14,7 @@ export async function createPerson(
     .insert(people)
     .values({ userId, name, birthday })
     .returning();
-  return person as Person;
+  return person;
 }
 
 export async function getPeople(userId: string) {

@@ -1,39 +1,28 @@
-import { Button, Divider } from "@nextui-org/react";
+import { TrashIcon } from "@heroicons/react/24/outline";
+import { Button } from "@nextui-org/react";
+import { ValidatedForm } from "@rvf/react-router";
 import {
   type ActionFunctionArgs,
-  json,
+  Form,
   type LoaderFunctionArgs,
-} from "@remix-run/node";
-
-import { Form, useLoaderData } from "@remix-run/react";
-import { ValidatedForm } from "remix-validated-form";
+} from "react-router";
 import invariant from "tiny-invariant";
-import { requireUser } from "#app/auth.server.ts";
-import { FormInput } from "#app/lib/ui/form-input.tsx";
-import {
-  assignmentValidator,
-  choreValidator,
-  personValidator,
-  rewardValidator,
-} from "./_app.home/validators";
-import {
-  type Chore,
-  createChore,
-  getChores,
-} from "#app/lib/repository/chore.server.ts";
-import { createReward, getRewards } from "#app/lib/repository/reward.server.ts";
-import { ResourceAutocomplete } from "#app/lib/ui/resource-autocomplete.tsx";
-import type { Serialized } from "#app/lib/models/model.ts";
-import { getPeople, Person } from "#app/lib/repository/person.server.ts";
-import { Currency } from "#app/lib/ui/currency.tsx";
+
+import type { Route } from "./+types/_app.assignments.js";
+import { assignmentValidator } from "./_app.home/validators.js";
+
+import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { groupBy } from "~/lib/group-by.js";
 import {
   createAssignment,
   getAssignments,
-} from "#app/lib/repository/assignment.server.ts";
-import { DAYS } from "#app/lib/models/DAYS.ts";
-import { groupBy } from "#app/lib/group-by.ts";
-import { FormErrors } from "#app/lib/ui/resource-pill.tsx";
-import { TrashIcon } from "@heroicons/react/24/outline";
+} from "~/lib/repository/assignment.server.js";
+import { type Chore, getChores } from "~/lib/repository/chore.server.js";
+import { DAYS } from "~/lib/repository/DAYS.js";
+import { type Person, getPeople } from "~/lib/repository/person.server.js";
+import { getRewards } from "~/lib/repository/reward.server.js";
+import { ResourceAutocomplete } from "~/lib/ui/resource-autocomplete.js";
+import { FormErrors } from "~/lib/ui/resource-pill.js";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
@@ -43,7 +32,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const rewards = await getRewards(user.id);
   const assignments = await getAssignments(user.id);
 
-  return json({ people, chores, rewards, assignments });
+  return { people, chores, rewards, assignments };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -57,9 +46,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
-export default function Page() {
-  const data = useLoaderData<typeof loader>();
-
+export default function Component({ loaderData }: Route.ComponentProps) {
   return (
     <section className="p-4">
       <div className="flex flex-col">
@@ -67,21 +54,21 @@ export default function Page() {
 
         {DAYS.map((day, dayOfWeek) => {
           const assignments = groupBy(
-            data.assignments.filter(
+            loaderData.assignments.filter(
               (assignment) => assignment.day === dayOfWeek
             ),
             "personId"
           );
 
-          const people = data.people.reduce((accu, entity) => {
+          const people = loaderData.people.reduce((accu, entity) => {
             accu[entity.id] = entity;
             return accu;
-          }, {} as { [key: string]: Serialized<Person> });
+          }, {} as { [key: string]: Person });
 
-          const chores = data.chores.reduce((accu, entity) => {
+          const chores = loaderData.chores.reduce((accu, entity) => {
             accu[entity.id] = entity;
             return accu;
-          }, {} as { [key: string]: Serialized<Chore> });
+          }, {} as { [key: string]: Chore });
 
           return (
             <div key={day}>
@@ -138,25 +125,24 @@ export default function Page() {
 
               <ValidatedForm
                 method="post"
-                subaction="createAssignment"
                 validator={assignmentValidator}
                 className="flex gap-2 items-end mt-4 pt-4"
               >
                 <input type="hidden" name="day" value={dayOfWeek} />
 
                 <div className="flex flex-1 gap-2">
-                  <ResourceAutocomplete<Serialized<Person>>
+                  <ResourceAutocomplete<Person>
                     label="Person"
                     name="person"
                     placeholder="Select person"
                     isRequired
                     displayValue={(person) => person?.name ?? ""}
-                    resources={data.people}
+                    resources={loaderData.people}
                     className="w-full"
                     size="sm"
                   />
 
-                  <ResourceAutocomplete<Serialized<Chore>>
+                  <ResourceAutocomplete<Chore>
                     label="Chore"
                     name="chore"
                     placeholder="Select chore"
@@ -164,7 +150,7 @@ export default function Page() {
                     displayValue={(chore) =>
                       chore ? `${chore.icon} ${chore.name}` : ""
                     }
-                    resources={data.chores}
+                    resources={loaderData.chores}
                     className="w-full"
                     size="sm"
                   />
@@ -174,7 +160,7 @@ export default function Page() {
                   Add
                 </Button>
 
-                <FormErrors formId="createAssignment" />
+                <FormErrors />
               </ValidatedForm>
             </div>
           );

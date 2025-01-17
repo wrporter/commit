@@ -1,18 +1,17 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import { TextLink } from "@wesp-up/ui";
+import { Checkbox, Link, cn } from "@nextui-org/react";
 import { useState } from "react";
+import { type LoaderFunctionArgs, Link as RouterLink } from "react-router";
 import { tv } from "tailwind-variants";
 
-import { requireUser } from "#app/auth.server.ts";
-import { DAYS } from "#app/lib/models/DAYS.ts";
-import { type Serialized } from "#app/lib/models/model.ts";
-import { getAssignments } from "#app/lib/repository/assignment.server.ts";
-import { type Chore, getChores } from "#app/lib/repository/chore.server.ts";
-import { getPeople } from "#app/lib/repository/person.server.ts";
-import { getRewards, type Reward } from "#app/lib/repository/reward.server.ts";
-import { Currency } from "#app/lib/ui/currency.tsx";
-import { Checkbox, cn } from "@nextui-org/react";
+import type { Route } from "./+types/chore-chart.js";
+
+import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { getAssignments } from "~/lib/repository/assignment.server.js";
+import { type Chore, getChores } from "~/lib/repository/chore.server.js";
+import { DAYS } from "~/lib/repository/DAYS.js";
+import { getPeople } from "~/lib/repository/person.server.js";
+import { type Reward, getRewards } from "~/lib/repository/reward.server.js";
+import { Currency } from "~/lib/ui/currency.js";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
@@ -22,28 +21,27 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const rewards = await getRewards(user.id);
   const assignments = await getAssignments(user.id);
 
-  return json({ people, chores, rewards, assignments });
+  return { people, chores, rewards, assignments };
 };
 
-export default function Page() {
-  const data = useLoaderData<typeof loader>();
+export default function Component({ loaderData }: Route.ComponentProps) {
   const today = new Date().toLocaleString("en-us", {
     weekday: "long",
   }) as (typeof DAYS)[number];
   const dayOfWeek = DAYS.indexOf(today);
 
-  const chores = data.chores.reduce((accu, entity) => {
+  const chores = loaderData.chores.reduce((accu, entity) => {
     accu[entity.id] = entity;
     return accu;
-  }, {} as { [key: string]: Serialized<Chore> });
-  const assignmentsForToday = data.assignments.filter(
+  }, {} as { [key: string]: Chore });
+  const assignmentsForToday = loaderData.assignments.filter(
     (assignment) => assignment.day === dayOfWeek
   );
 
   return (
     <div className="p-4">
       <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
-        {data.people.map((person) => {
+        {loaderData.people.map((person) => {
           const assignments = assignmentsForToday.filter(
             (assignment) => assignment.personId === person.id
           );
@@ -61,10 +59,8 @@ export default function Page() {
               {assignments.length > 0 ? (
                 <div className="flex flex-col gap-2">
                   {assignments.map((assignment) => {
-                    const chore = chores[
-                      assignment.choreId
-                    ] as Serialized<Chore>;
-                    const reward = data.rewards.find(
+                    const chore = chores[assignment.choreId];
+                    const reward = loaderData.rewards.find(
                       (reward) =>
                         reward.choreId === assignment.choreId &&
                         reward.personId === assignment.personId
@@ -87,9 +83,9 @@ export default function Page() {
         })}
       </div>
 
-      <TextLink as={Link} to="/home" className="flex mt-8">
+      <Link as={RouterLink} to="/home" className="flex mt-8">
         Take me home
-      </TextLink>
+      </Link>
     </div>
   );
 }
@@ -108,13 +104,7 @@ const taskVariants = tv({
   },
 });
 
-function TaskCheckbox({
-  chore,
-  reward,
-}: {
-  chore: Serialized<Chore>;
-  reward?: Serialized<Reward>;
-}) {
+function TaskCheckbox({ chore, reward }: { chore: Chore; reward?: Reward }) {
   const [done, setDone] = useState(false);
 
   return (

@@ -1,5 +1,4 @@
-import config from "@epic-web/config/prettier";
-
 export default {
-  ...config,
+  printWidth: 100,
+  singleQuote: true,
 };

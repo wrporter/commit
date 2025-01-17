@@ -1,26 +1,43 @@
-/// <reference types="vitest" />
+import type { UserConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+export default ({ mode }: Required<UserConfig>) => {
+  process.env = {
+    ...process.env,
+    LOG_LEVEL: "error",
+    DEBUG_PRINT_LIMIT: "100000",
+  };
 
-export default defineConfig({
-  plugins: [react()],
-  css: { postcss: { plugins: [] } },
-  test: {
-    include: ["{app,server}/**/*.test.{ts,tsx}"],
-    setupFiles: ["./tests/setup-test-env.ts"],
-    restoreMocks: true,
+  return defineConfig({
+    mode,
+    test: {
+      globals: true,
+      clearMocks: true,
 
-    // TODO: Add reporters
-    // TODO: Consider using happy-dom
+      environment: "jsdom",
+      setupFiles: ["./app/test/setup-tests.config.ts"],
 
-    coverage: {
-      include: ["{app,server}/**/*.{ts,tsx}"],
-      exclude: ["*.{generated,config,test}.*"],
-      all: true,
+      // Raised timeout due to slowness with MUI X Data Grid in Docker
+      testTimeout: 30000,
 
-      // TODO: Add reporters
-      // TODO: Add thresholds
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "lcov", "cobertura"],
+        include: ["app/**/*.{ts,tsx}", "server/**/*.ts"],
+        exclude: [
+          "server/{env,main}.*",
+          "**/*.{generated,config,repo,test,fake,mock}.*",
+          "app/{entry,root,routes}.*",
+        ],
+
+        thresholds: {
+          // TODO: Update thresholds
+          statements: 0,
+          branches: 0,
+          functions: 0,
+          lines: 0,
+        },
+      },
     },
-  },
-});
+  });
+};

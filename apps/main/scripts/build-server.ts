@@ -1,13 +1,15 @@
+/* eslint-disable import-x/no-extraneous-dependencies */
 import * as fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import esbuild from "esbuild";
 import fsExtra from "fs-extra";
 import { globSync } from "glob";
 import sourceMapSupport from "source-map-support";
 
 sourceMapSupport.install({
-  retrieveSourceMap: function (source) {
+  retrieveSourceMap: function (source: string) {
     // get source file without the `file://` prefix or `?t=...` suffix
     const match = source.match(/^file:\/\/(.*)\?t=[.\d]+$/);
     if (match) {

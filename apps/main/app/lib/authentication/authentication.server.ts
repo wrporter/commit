@@ -1,27 +1,24 @@
-import { log } from "@wesp-up/express-remix";
+import { redirect } from "react-router";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import { GoogleStrategy } from "remix-auth-google";
 import invariant from "tiny-invariant";
 
+import { env } from "#server/env.server.js";
+import { log } from "#server/log.server.js";
+import { GoogleStrategy } from "~/lib/authentication/authentication.google.js";
 import {
+  type User,
   createUser,
   getUserByEmail,
-  type User,
   verifyLogin,
-} from "#app/lib/repository/user.server.ts";
-import { env } from "#server/env.server";
-import { sessionStorage } from "./session.server";
+} from "~/lib/repository/user.server.js";
+import { sessionStorage } from "~/session.server.js";
+
+export class AuthorizationError extends Error {}
 
 export const AUTH_ERROR_KEY = "auth-error-key";
 
-export const authenticator = new Authenticator<Omit<User, "passwordHash">>(
-  sessionStorage,
-  {
-    sessionErrorKey: AUTH_ERROR_KEY,
-    throwOnError: true,
-  }
-);
+export const authenticator = new Authenticator<Omit<User, "passwordHash">>();
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
@@ -29,7 +26,9 @@ authenticator.use(
     const password = form.get("password") as string;
 
     const user = await verifyLogin(email, password);
-    invariant(user, "Invalid email or password");
+    if (!user) {
+      throw new AuthorizationError("Invalid email or password");
+    }
 
     return user;
   }),
@@ -42,14 +41,14 @@ if (env.SITE_PORT) {
 }
 
 authenticator.use(
-  new GoogleStrategy(
+  new GoogleStrategy<User>(
     {
-      clientID: env.GOOGLE_OAUTH_CLIENT_ID || "",
+      clientId: env.GOOGLE_OAUTH_CLIENT_ID || "",
       clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET || "",
-      callbackURL: `${env.SITE_PROTOCOL}://${env.SITE_HOST}${port}/auth/google/callback`,
+      redirectURI: `${env.SITE_PROTOCOL}://${env.SITE_HOST}${port}/auth/google/callback`,
     },
-    async ({ profile }) => {
-      log.info(JSON.stringify(env));
+    async (profile) => {
+      log.info({ message: "google verify", profile });
       let user = await getUserByEmail(profile.emails[0].value);
       if (!user) {
         user = await createUser({
@@ -69,13 +68,22 @@ authenticator.use(
 );
 
 export async function getUser(request: Request) {
-  return authenticator.isAuthenticated(request);
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie")
+  );
+  return session.get("user");
 }
 
 export async function requireUser(request: Request) {
   const redirectTo = new URL(request.url).pathname;
   const searchParams = new URLSearchParams([["redirectTo", redirectTo]]);
-  return authenticator.isAuthenticated(request, {
-    failureRedirect: `/login?${searchParams}`,
-  });
+
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie")
+  );
+  const user = session.get("user");
+  if (!user) {
+    throw redirect(`/login?${searchParams}`);
+  }
+  return user;
 }

@@ -1,18 +1,56 @@
+/**
+ * Code pulled and simplified from https://github.com/epicweb-dev/epic-stack
+ */
 import path from "node:path";
 
-import { createRequestHandler } from "@remix-run/express";
-import { type ServerBuild, installGlobals } from "@remix-run/node";
-import { Server, type Options as ServerOptions } from "@wesp-up/express";
+import { context, propagation } from "@opentelemetry/api";
+import { createRequestHandler } from "@react-router/express";
+import {
+  type RequestLogger,
+  Server,
+  type Options as ServerOptions,
+} from "@wesp-up/express";
 import express, {
   type Application,
+  type NextFunction,
   type Request,
+  type RequestHandler,
   type Response,
 } from "express";
+import type { ServerBuild } from "react-router";
+
+import { env } from "./env.server.js";
+
+declare module "react-router" {
+  interface AppLoadContext {
+    log: RequestLogger;
+  }
+}
+
+const viteDevServer =
+  env.NODE_ENV === "production"
+    ? undefined
+    : // eslint-disable-next-line import-x/no-extraneous-dependencies
+      await import("vite").then((vite) =>
+        vite.createServer({
+          server: { middlewareMode: true },
+        })
+      );
+
+async function getBuild() {
+  const build = viteDevServer
+    ? await viteDevServer.ssrLoadModule("virtual:react-router/server-build")
+    : // @ts-ignore this should exist before running the server
+      // but it may not exist just yet.
+      await import("../build/server/index.js");
+  // not sure how to make this happy 🤷‍♂️
+  return build as unknown as ServerBuild;
+}
 
 /**
- * Remix options.
+ * React Router options.
  */
-export interface RemixOptions {
+export interface ReactRouterOptions {
   /**
    * The build path for the backend server.
    * @default `${PWD}/build`
@@ -24,8 +62,7 @@ export interface RemixOptions {
    */
   assetsRoot: string;
   /**
-   * The build directory for remix assets, should be a child of
-   * {@link assetsRoot}.
+   * The build directory for React Router assets, should be a child of `assetsRoot`.
    * @default `public/build`
    */
   assetsBuildDirectory: string;
@@ -37,9 +74,9 @@ export interface RemixOptions {
 }
 
 /**
- * Smart defaults for Remix. You normally shouldn't have to change these.
+ * Smart defaults for React Router. You normally shouldn't have to change these.
  */
-export const defaultRemixOptions: RemixOptions = {
+export const defaultReactRouterOptions: ReactRouterOptions = {
   serverBuildPath: path.join(process.cwd(), "build"),
   assetsBuildDirectory: "build/client/assets",
   publicPath: "/assets",
@@ -47,121 +84,133 @@ export const defaultRemixOptions: RemixOptions = {
 };
 
 /**
- * Apply Remix middleware and assets to an Express application. This should be
- * applied towards the end of an application since control will be given to
- * Remix at this point. Any custom Express routes and middleware should be
- * applied previous to using this.
- * @param app - Express app to apply Remix middleware to.
- * @param options - Options for configuring Remix assets and middleware.
+ * Creates an Express server integrated with React Router and ready for production.
  */
-export async function applyRemix(
-  app: Application,
-  options?: Partial<RemixOptions>
+export function createReactRouterServer(
+  options: Partial<ReactRouterOptions & ServerOptions> = {}
 ) {
-  installGlobals();
-
-  const opts = {
-    ...defaultRemixOptions,
-    ...options,
-  };
-  const { publicPath, assetsBuildDirectory, assetsRoot } = opts;
-
-  /* -------------------------- Middleware ---------------------------- */
-  // Do not allow trailing slashes in URLs
-  app.use((req, res, next) => {
-    if (req.path.endsWith("/") && req.path.length > 1) {
-      const query = req.url.slice(req.path.length);
-      const safePath = req.path.slice(0, -1).replace(/\/+/g, "/");
-      res.redirect(301, safePath + query);
-      return;
-    }
-    next();
-  });
-
-  /* -------------------------- Static Assets ---------------------------- */
-  const viteDevServer =
-    process.env.NODE_ENV === "production"
-      ? undefined
-      :  
-        await import("vite").then((vite) =>
-          vite.createServer({
-            server: { middlewareMode: true },
-          })
-        );
-
-  async function getBuild() {
-    const build = viteDevServer
-      ? viteDevServer.ssrLoadModule("virtual:remix/server-build")
-      : // @ts-ignore this should exist before running the server
-        // but it may not exist just yet.
-        await import("../build/server/index.js");
-    // not sure how to make this happy 🤷‍♂️
-    return build as unknown as ServerBuild;
-  }
-
-  /* -------------------------- Remix Routes -------------------------- */
-  if (viteDevServer) {
-    app.use(viteDevServer.middlewares);
-  } else {
-    // Vite fingerprints its assets so we can cache forever.
-    app.use(
-      publicPath,
-      express.static(assetsBuildDirectory, { immutable: true, maxAge: "1y" })
-    );
-
-    // Everything else (like favicon.ico) is cached for an hour. You may want to be
-    // more aggressive with this caching.
-    app.use(express.static(assetsRoot, { maxAge: "1h" }));
-  }
-
-  // handle SSR requests
-  app.all(
-    "*",
-    createRequestHandler({
-      getLoadContext: (req: Request, res: Response) => ({
-        serverBuild: getBuild(),
-        ...res.locals.requestContext,
-      }),
-      mode: process.env.NODE_ENV,
-      build: getBuild,
-    })
-  );
-
-  return app;
-}
-
-/**
- * Creates an Express server integrated with Remix and ready for production.
- */
-export async function createRemixServer(
-  options: Partial<RemixOptions & ServerOptions> = {}
-) {
-  const server = new RemixServer(options);
-  await server.init();
+  const server = new ReactRouterServer(options);
+  server.init();
   return server;
 }
 
+const assetRegex = /\.(ico|js|css|json)$/;
+
+export const traceResponseHeader: RequestHandler = (_, res, next) => {
+  const headers: { traceparent?: string } = {};
+  propagation.inject(context.active(), headers);
+  if (headers.traceparent) {
+    // See spec https://github.com/w3c/trace-context/blob/main/spec/21-http_response_header_format.md
+    res.setHeader("traceresponse", headers.traceparent);
+  }
+  next();
+};
+
+export const redirectWithoutTrailingSlash: RequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.path.endsWith("/") && req.path.length > 1) {
+    const query = req.url.slice(req.path.length);
+    const safePath = req.path.slice(0, -1).replace(/\/+/g, "/");
+    res.redirect(302, safePath + query);
+  }
+  next();
+};
+
 /**
- * An Express server integrated with Remix. Inherits from the server from
+ * An Express server integrated with React Router. Inherits from the server from
  * \@wesp-up/express.
  */
-export class RemixServer extends Server {
-  private readonly remixOptions?: Partial<RemixOptions>;
+export class ReactRouterServer extends Server {
+  private readonly reactRouterOptions: ReactRouterOptions;
 
-  constructor(options?: Partial<RemixOptions & ServerOptions>) {
+  constructor(options?: Partial<ReactRouterOptions & ServerOptions>) {
     super(options as ServerOptions);
-    this.remixOptions = options;
+    this.reactRouterOptions = {
+      ...defaultReactRouterOptions,
+      ...options,
+    };
+
+    const skipMetricsAndLogs = (req: Request) => {
+      if (assetRegex.test(req.path)) {
+        return true;
+      }
+      if (viteDevServer?.config.base) {
+        return req.path.startsWith(viteDevServer?.config.base);
+      }
+      return req.path.startsWith(this.reactRouterOptions.publicPath);
+    };
+
+    this.options.accessLogs = {
+      skip: this.options?.accessLogs?.skip
+        ? this.options?.accessLogs.skip
+        : skipMetricsAndLogs,
+    };
+    this.options.metricsOptions = {
+      bypass: this.options.metricsOptions?.bypass
+        ? this.options.metricsOptions?.bypass
+        : skipMetricsAndLogs,
+      formatStatusCode: (res: Response) => {
+        if (res.statusCode < 300) {
+          return "2xx";
+        }
+        if (res.statusCode < 400) {
+          return "3xx";
+        }
+        return res.statusCode;
+      },
+    };
   }
 
-  protected async postMountApp(app: Application) {
-     
-    await applyRemix(app, this.remixOptions);
+  protected preMountApp(app: Application) {
+    app.use(traceResponseHeader);
+  }
+
+  /**
+   * Apply React Router middleware and assets to an Express application. This should be
+   * applied towards the end of an application since control will be given to
+   * React Router at this point. Any custom Express routes and middleware should be
+   * applied previous to using this.
+   * @param app - Express app to apply React Router middleware to.
+   */
+  protected postMountApp(app: Application) {
+    const { publicPath, assetsBuildDirectory, assetsRoot } =
+      this.reactRouterOptions;
+
+    // Do not allow trailing slashes in URLs
+    app.get("*", redirectWithoutTrailingSlash);
+
+    // Static assets
+    if (viteDevServer) {
+      app.use(viteDevServer.middlewares);
+    } else {
+      // Vite fingerprints its assets so we can cache forever.
+      app.use(
+        publicPath,
+        express.static(assetsBuildDirectory, { immutable: true, maxAge: "1y" })
+      );
+
+      // Everything else (like favicon.ico) is cached for an hour. You may want to be
+      // more aggressive with this caching.
+      app.use(express.static(assetsRoot, { maxAge: "1h" }));
+    }
+
+    // React Router routes
+    app.use(
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      createRequestHandler({
+        mode: env.NODE_ENV,
+        build: getBuild,
+        getLoadContext: (req: Request) => ({
+          ...req.context,
+        }),
+      })
+    );
   }
 }
 
-async function main() {
-  const server = await createRemixServer();
-  server.start(3000);
-}
-
-main();
+const server = createReactRouterServer();
+const port = 3000;
+server.start(port);

@@ -1,10 +1,10 @@
 import {
-  type AutocompleteProps,
   Autocomplete,
   AutocompleteItem,
+  type AutocompleteProps,
 } from "@nextui-org/react";
+import { useField } from "@rvf/react-router";
 import { useState } from "react";
-import { useField } from "remix-validated-form";
 
 export interface Resource {
   id: string;
@@ -23,9 +23,11 @@ export function ResourceAutocomplete<T extends Resource>({
   name,
   ...rest
 }: ResourceComboboxProps<T>) {
-  const { defaultValue } = useField(name);
+  const field = useField(name);
   // The autocomplete only works properly when values are strings and not numbers
-  const [value, setValue] = useState<string>(defaultValue?.toString() ?? "");
+  const [value, setValue] = useState<string>(
+    field.defaultValue()?.toString() ?? ""
+  );
 
   return (
     <>

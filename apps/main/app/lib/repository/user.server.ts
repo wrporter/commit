@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
-
 import { eq } from "drizzle-orm";
-import { db } from "#app/lib/repository/db.server.ts";
-import { users } from "#server/db-schema.server.ts";
+
+import { users } from "#server/db-schema.server.js";
+import { db } from "~/lib/repository/db.server.js";
 
 export type User = typeof users.$inferSelect;
 
@@ -69,7 +69,6 @@ export async function verifyLogin(
   email: string,
   password: string
 ): Promise<Omit<User, "passwordHash"> | null> {
-  console.log(email, password);
   const [userWithPassword] = await db
     .select()
     .from(users)

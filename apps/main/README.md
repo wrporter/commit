@@ -12,3 +12,12 @@
    ```shell
    SCOPE=main .ci/deploy.sh
    ```
+
+## Known Issues
+
+After upgrading to React Router v7, there is an issue with forms on the page.
+
+- https://github.com/airjp73/rvf/issues/410
+- https://github.com/remix-run/react-router/issues/12475
+
+Downgrading to Node v20 resolves this for now.

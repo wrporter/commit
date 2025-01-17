@@ -3,6 +3,6 @@
   <component name="PrettierConfiguration">
     <option name="myConfigurationMode" value="AUTOMATIC" />
     <option name="myRunOnSave" value="true" />
-    <option name="myFilesPattern" value="**/*.{js,ts,mjs,mts,jsx,tsx,vue,astro}" />
+    <option name="myFilesPattern" value="**/*.{js,ts,cjs,cts,mjs,mts,jsx,tsx,vue,astro,md}" />
   </component>
 </project>

@@ -1,11 +1,11 @@
-import { default as defaultConfig } from "@epic-web/config/eslint";
-import unusedImports from "eslint-plugin-unused-imports";
+import config from "@wesp-up/eslint-config-react";
 
 /** @type {import("eslint").Linter.Config} */
 export default [
-  ...defaultConfig,
+  ...config,
   {
     ignores: [
+      ".react-router",
       "node_modules",
       "/build",
       "/public/build",
@@ -18,11 +18,27 @@ export default [
     ],
   },
   {
-    plugins: {
-      "unused-imports": unusedImports,
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.eslint.json",
+      },
     },
     rules: {
-      "unused-imports/no-unused-imports": "error",
+      "import-x/no-extraneous-dependencies": [
+        "error",
+        { devDependencies: ["**/*.{test,config,build,fake,mock,seed}.*"] },
+      ],
+      "@typescript-eslint/only-throw-error": "off",
+    },
+    ignores: [".react-router/**/*"],
+  },
+  {
+    files: ["**/*.{test,fake,mock,seed}.*", "**/*.{js,cjs,mjs,jsx}"],
+    rules: {
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/unbound-method": "off",
     },
   },
 ];

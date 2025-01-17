@@ -1,7 +1,7 @@
-import { Outlet } from "@remix-run/react";
 import React from "react";
+import { Outlet } from "react-router";
 
-import { Header } from "#app/lib/ui/header";
+import { Header } from "~/lib/ui/header.js";
 
 export default function Layout() {
   // TODO: Add dark mode theme switching

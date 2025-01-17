@@ -2,9 +2,9 @@ import {
   type ActionFunction,
   type LoaderFunction,
   redirect,
-} from "@remix-run/node";
+} from "react-router";
 
-import { authenticator } from "#app/auth.server";
+import { authenticator } from "~/lib/authentication/authentication.server.js";
 
 export const loader: LoaderFunction = () => redirect("/login");
 

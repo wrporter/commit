@@ -1,11 +1,36 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
-  "extends": ["@epic-web/config/typescript"],
+  "include": [
+    ".react-router/types/**/*",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/.server/**/*.ts",
+    "**/.server/**/*.tsx",
+    "**/.client/**/*.ts",
+    "**/.client/**/*.tsx"
+  ],
   "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["@react-router/node", "vite/client", "vitest/globals"],
+    "rootDirs": [".", "./.react-router/types"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "target": "ES2022",
+    "strict": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
     "paths": {
-      "#app/*": ["./app/*"],
-      "#server/*": ["./server/*"],
-      "#tests/*": ["./tests/*"]
-    }
+      "~/*": ["./app/*"],
+      "#server/*": ["./server/*"]
+    },
+
+    // Vite takes care of building everything, not tsc.
+    "noEmit": true
   }
 }

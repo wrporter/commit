@@ -1,7 +1,7 @@
-import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
+import { useMatches } from "react-router";
 
-import { type User } from "#app/lib/models/user.server";
+import type { User } from "~/lib/repository/user.server.js";
 
 /**
  * This base hook is used in other hooks to quickly search for specific data

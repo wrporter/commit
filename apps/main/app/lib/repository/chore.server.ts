@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "#app/lib/repository/db.server.ts";
-import { chores } from "#server/db-schema.server.ts";
+
+import { chores } from "#server/db-schema.server.js";
+import { db } from "~/lib/repository/db.server.js";
 
 export type Chore = typeof chores.$inferSelect;
 
@@ -12,7 +13,7 @@ export async function createChore(
     .insert(chores)
     .values({ userId, ...chore })
     .returning();
-  return person as Chore;
+  return person;
 }
 
 export async function getChores(userId: string) {

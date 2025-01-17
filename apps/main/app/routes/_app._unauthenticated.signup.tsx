@@ -1,27 +1,32 @@
 import { Button, Input, Link } from "@nextui-org/react";
-import {
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-  type MetaFunction,
-  json,
-} from "@remix-run/node";
-import { Form, Link as RemixLink, useSearchParams } from "@remix-run/react";
-import { withZod } from "@remix-validated-form/with-zod";
+import { ValidatedForm, validationError } from "@rvf/react-router";
+import { withZod } from "@rvf/zod";
 import * as React from "react";
 import {
-  ValidatedForm,
-  useFormContext,
-  validationError,
-} from "remix-validated-form";
+  type ActionFunctionArgs,
+  Form,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+  Link as RemixLink,
+  data,
+  redirect,
+  useSearchParams,
+} from "react-router";
 import { z } from "zod";
 
-import { authenticator } from "#app/auth.server";
-import { createUser, getUserByEmail } from "#app/lib/repository/user.server.ts";
+import {
+  authenticator,
+  getUser,
+} from "~/lib/authentication/authentication.server.js";
+import { createUser, getUserByEmail } from "~/lib/repository/user.server.js";
+import { sessionStorage } from "~/session.server.js";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return authenticator.isAuthenticated(request, {
-    successRedirect: "/home",
-  });
+  const user = await getUser(request);
+  if (user) {
+    throw redirect("/home");
+  }
+  return null;
 };
 
 const validator = withZod(
@@ -37,7 +42,7 @@ const validator = withZod(
 );
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
+  const formData = await request.clone().formData();
   const form = await validator.validate(formData);
   if (form.error) {
     return validationError(form.error);
@@ -47,7 +52,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
-    return json(
+    return data(
       {
         errors: {
           email:
@@ -60,9 +65,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   await createUser({ displayName, email, password });
 
-  return authenticator.authenticate("basic", request, {
-    successRedirect: redirectTo,
-    context: { formData },
+  const user = await authenticator.authenticate("basic", request);
+
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie")
+  );
+  session.set("user", user);
+
+  throw redirect(redirectTo, {
+    headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
   });
 };
 
@@ -70,8 +81,7 @@ export const meta: MetaFunction = () => [{ title: "Sign Up" }];
 
 export default function Signup() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/home";
-  const form = useFormContext("signupForm");
+  const redirectTo = searchParams.get("redirectTo") ?? "/";
 
   return (
     <>
@@ -98,85 +108,68 @@ export default function Signup() {
 
       <div className="mx-auto w-full max-w-md rounded bg-background px-8 py-8 drop-shadow-lg">
         <ValidatedForm
-          id="signupForm"
           validator={validator}
           method="post"
-          className="flex flex-col gap-6"
+          className="flex flex-col gap-4"
           noValidate
         >
-          <div>
-            <Input
-              label="Display name"
-              id="displayName"
-              name="displayName"
-              type="displayName"
-              autoComplete="displayName"
-              aria-invalid={Boolean(form.fieldErrors.displayName)}
-              aria-describedby="displayName-error"
-              className="w-full"
-            />
-            {form.fieldErrors.displayName && (
-              <div className="pt-1 text-red-700" id="displayName-error">
-                {form.fieldErrors.displayName}
-              </div>
-            )}
-          </div>
+          {(form) => (
+            <>
+              <Input
+                label="Display name"
+                id="displayName"
+                name="displayName"
+                type="displayName"
+                autoComplete="displayName"
+                isInvalid={Boolean(form.formState.fieldErrors.displayName)}
+                errorMessage={form.formState.fieldErrors.displayName}
+                className="w-full"
+              />
 
-          <div>
-            <Input
-              label="Email"
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              aria-invalid={Boolean(form.fieldErrors.email)}
-              aria-describedby="email-error"
-              className="w-full"
-            />
-            {form.fieldErrors.email && (
-              <div className="pt-1 text-red-700" id="email-error">
-                {form.fieldErrors.email}
-              </div>
-            )}
-          </div>
+              <Input
+                label="Email"
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                isInvalid={Boolean(form.formState.fieldErrors.email)}
+                errorMessage={form.formState.fieldErrors.email}
+                className="w-full"
+              />
 
-          <div>
-            <Input
-              label="Password"
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              aria-invalid={Boolean(form.fieldErrors.password)}
-              aria-describedby="password-error"
-              className="w-full"
-            />
-            {form.fieldErrors.password && (
-              <div className="pt-1 text-red-700" id="password-error">
-                {form.fieldErrors.password}
-              </div>
-            )}
-          </div>
+              <Input
+                label="Password"
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="new-password"
+                isInvalid={Boolean(form.formState.fieldErrors.password)}
+                errorMessage={form.formState.fieldErrors.password}
+                className="w-full"
+              />
 
-          <input type="hidden" name="redirectTo" value={redirectTo} />
-          <Button type="submit" color="primary" className="w-full">
-            Create Account
-          </Button>
-          <div className="flex items-center justify-center">
-            <div className="text-center text-sm text-gray-500">
-              Already have an account?{" "}
-              <Link
-                as={RemixLink}
-                to={{
-                  pathname: "/login",
-                  search: searchParams.toString(),
-                }}
-                size="sm"
-              >
-                Log in
-              </Link>
-            </div>
-          </div>
+              <input type="hidden" name="redirectTo" value={redirectTo} />
+              <Button type="submit" color="primary" className="w-full">
+                Create Account
+              </Button>
+
+              <div className="flex items-center justify-center">
+                <div className="text-center text-sm text-gray-500">
+                  Already have an account?{" "}
+                  <Link
+                    as={RemixLink}
+                    to={{
+                      pathname: "/login",
+                      search: searchParams.toString(),
+                    }}
+                    size="sm"
+                  >
+                    Log in
+                  </Link>
+                </div>
+              </div>
+            </>
+          )}
         </ValidatedForm>
       </div>
     </>

@@ -1,27 +1,26 @@
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import {
-  type InputProps,
   Button,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  type InputProps,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
 } from "@nextui-org/react";
-import { Form, Link } from "@remix-run/react";
-import { Pill, PillGroup } from "@wesp-up/ui";
-import { type ReactNode, useState } from "react";
 import {
-  type Validator,
   ValidatedForm,
+  type Validator,
   useFormContext,
-} from "remix-validated-form";
+} from "@rvf/react-router";
+import { type ReactNode, useState } from "react";
+import { Form, Link } from "react-router";
 
-import { FormInput } from "#app/lib/ui/form-input";
+import { FormInput } from "~/lib/ui/form-input.js";
 
 export interface HiddenField {
   name: string;
@@ -57,12 +56,9 @@ function constructHiddenFields(hiddenFields: HiddenField[]) {
   );
 }
 
-export interface FormErrorsProps {
-  formId: string;
-}
-export function FormErrors({ formId }: FormErrorsProps) {
-  const form = useFormContext(formId);
-  if (form.isValid) {
+export function FormErrors() {
+  const form = useFormContext();
+  if (form.formState.isValid) {
     return null;
   }
 
@@ -73,7 +69,7 @@ export function FormErrors({ formId }: FormErrorsProps) {
         try again.
       </p>
       <ul className="list-disc pl-6">
-        {Object.entries(form.fieldErrors).map(([name, error]) => (
+        {Object.entries(form.formState.fieldErrors).map(([name, error]) => (
           <li key={name}>{error}</li>
         ))}
       </ul>
@@ -153,10 +149,10 @@ export function ResourcePill({ to, form }: ResourcePillProps) {
 
   return (
     <>
-      <PillGroup>
-        <Pill as={Link} key={form.resource.id} to={to}>
+      <div>
+        <Link key={form.resource.id} to={to}>
           {form.resource.component ?? form.resource.name}
-        </Pill>
+        </Link>
 
         <div className="flex flex-col border-l border-gray-400">
           <Dropdown>
@@ -169,10 +165,11 @@ export function ResourcePill({ to, form }: ResourcePillProps) {
               </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="Options">
-              <DropdownItem onPress={() => setEditOpen(true)}>
+              <DropdownItem key="edit" onPress={() => setEditOpen(true)}>
                 Edit
               </DropdownItem>
               <DropdownItem
+                key="delete"
                 onPress={() => setDeleteOpen(true)}
                 color="danger"
                 className="text-danger"
@@ -182,7 +179,7 @@ export function ResourcePill({ to, form }: ResourcePillProps) {
             </DropdownMenu>
           </Dropdown>
         </div>
-      </PillGroup>
+      </div>
 
       <Modal isOpen={editOpen} onOpenChange={setEditOpen}>
         <ModalContent>

@@ -1,24 +1,21 @@
 import { Button, Divider } from "@nextui-org/react";
-import {
-  type ActionFunctionArgs,
-  json,
-  type LoaderFunctionArgs,
-} from "@remix-run/node";
-
-import { useLoaderData } from "@remix-run/react";
-import { ValidatedForm } from "remix-validated-form";
+import { ValidatedForm } from "@rvf/react-router";
+import { type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 import invariant from "tiny-invariant";
-import { requireUser } from "#app/auth.server.ts";
-import { createPerson, getPeople } from "#app/lib/repository/person.server.ts";
-import { FormInput } from "#app/lib/ui/form-input.tsx";
-import { personValidator } from "./_app.home/validators";
+
+import type { Route } from "./+types/_app.people.js";
+import { personValidator } from "./_app.home/validators.js";
+
+import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { createPerson, getPeople } from "~/lib/repository/person.server.js";
+import { FormInput } from "~/lib/ui/form-input.js";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
 
   const people = await getPeople(user.id);
 
-  return json({ people });
+  return { people };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -32,9 +29,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
-export default function Page() {
-  const data = useLoaderData<typeof loader>();
-
+export default function Component({ loaderData }: Route.ComponentProps) {
   return (
     <section className="p-4">
       <div className="flex flex-col">
@@ -45,7 +40,6 @@ export default function Page() {
         <ValidatedForm
           validator={personValidator}
           method="post"
-          subaction="createPerson"
           className="space-y-2"
         >
           <FormInput label="Name" name="name" placeholder="Johnny Appleseed" />
@@ -65,7 +59,7 @@ export default function Page() {
       <Divider className="my-4" />
 
       <div className="flex flex-col gap-4 mt-4">
-        {data.people.map((person) => (
+        {loaderData.people.map((person) => (
           <div key={person.id} className="p-2 border border-gray-300 rounded">
             {person.name}
           </div>

@@ -2,19 +2,19 @@ import {
   type ActionFunction,
   type LoaderFunction,
   redirect,
-} from "@remix-run/node";
+} from "react-router";
 
-import { authenticator, requireUser } from "#app/auth.server";
-import { deleteUserByEmail } from "#app/lib/repository/user.server";
+import { action as logout } from "./logout.js";
 
-export const action: ActionFunction = async ({ request }) => {
+import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { deleteUserByEmail } from "~/lib/repository/user.server.js";
+
+export const action: ActionFunction = async ({ request, params }) => {
   const user = await requireUser(request);
   await deleteUserByEmail(user.email);
-  return authenticator.logout(request, {
-    redirectTo: "/",
-  });
+  return logout({ request, params });
 };
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = () => {
   return redirect("/home");
 };

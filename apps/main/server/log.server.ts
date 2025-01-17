@@ -1,1 +1,1 @@
-export { log } from "@wesp-up/express-remix";
+export { log } from "@wesp-up/express";

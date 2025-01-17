@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "#app/lib/repository/db.server.ts";
-import { rewards } from "#server/db-schema.server.ts";
+
+import { rewards } from "#server/db-schema.server.js";
+import { db } from "~/lib/repository/db.server.js";
 
 export type Reward = typeof rewards.$inferSelect;
 
@@ -12,7 +13,7 @@ export async function createReward(
     .insert(rewards)
     .values({ userId, ...reward })
     .returning();
-  return person as Reward;
+  return person;
 }
 
 export async function getRewards(userId: string) {

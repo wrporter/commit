@@ -5,6 +5,8 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/apps/main/public/build" />
       <excludeFolder url="file://$MODULE_DIR$/apps/postgres/db" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/main/.react-router" />
+      <excludeFolder url="file://$MODULE_DIR$/apps/main/server-build" />
       <excludePattern pattern="build" />
       <excludePattern pattern="junit.xml" />
       <excludePattern pattern="coverage" />

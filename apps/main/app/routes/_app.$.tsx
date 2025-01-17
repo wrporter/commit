@@ -1,5 +1,5 @@
-import { Link, useParams } from "@remix-run/react";
-import { Button } from "@wesp-up/ui";
+import { Button } from "@nextui-org/react";
+import { Link, useParams } from "react-router";
 
 export default function NotFoundPage() {
   const params = useParams();

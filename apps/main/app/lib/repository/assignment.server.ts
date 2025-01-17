@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "#app/lib/repository/db.server.ts";
-import { assignments } from "#server/db-schema.server.ts";
+
+import { assignments } from "#server/db-schema.server.js";
+import { db } from "~/lib/repository/db.server.js";
 
 export type Assignment = typeof assignments.$inferSelect;
 
@@ -12,7 +13,7 @@ export async function createAssignment(
     .insert(assignments)
     .values({ userId, ...reward })
     .returning();
-  return assignment as Assignment;
+  return assignment;
 }
 
 export async function getAssignments(userId: string) {

@@ -1,13 +1,13 @@
 import {
+  date,
+  doublePrecision,
+  integer,
+  jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
-  integer,
-  doublePrecision,
-  jsonb,
-  primaryKey,
-  date,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";

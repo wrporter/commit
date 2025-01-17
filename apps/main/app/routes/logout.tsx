@@ -2,14 +2,19 @@ import {
   type ActionFunction,
   type LoaderFunction,
   redirect,
-} from "@remix-run/node";
+} from "react-router";
 
-import { authenticator } from "#app/auth.server";
+import { sessionStorage } from "~/session.server.js";
 
 export const action: ActionFunction = async ({ request }) => {
-  return authenticator.logout(request, { redirectTo: "/" });
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie")
+  );
+  return redirect("/login", {
+    headers: { "Set-Cookie": await sessionStorage.destroySession(session) },
+  });
 };
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = () => {
   return redirect("/");
 };

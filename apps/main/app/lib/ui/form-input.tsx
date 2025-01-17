@@ -1,20 +1,24 @@
-import  { type InputProps , Input } from "@nextui-org/react";
-import { useField } from "remix-validated-form";
+import { Input, type InputProps } from "@nextui-org/react";
+import { useField } from "@rvf/react-router";
 
 export interface FormInputProps extends InputProps {
   name: string;
 }
+
 export function FormInput({ name, label, ...rest }: FormInputProps) {
-  const { getInputProps, error } = useField(name);
+  const field = useField(name);
+  const { value, ...inputProps } = field.getInputProps({ ...rest });
+  const errorMessage = field.error();
 
   return (
     <Input
-      {...getInputProps({ ...rest })}
+      {...inputProps}
+      value={value as string}
       label={label}
       autoComplete="off"
       data-1p-ignore
-      isInvalid={Boolean(error)}
-      errorMessage={error}
+      isInvalid={Boolean(errorMessage)}
+      errorMessage={errorMessage}
     />
   );
 }

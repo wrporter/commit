@@ -1,4 +1,14 @@
 import {
+  ArrowLeftStartOnRectangleIcon,
+  ChartPieIcon,
+  CheckCircleIcon,
+  ClipboardIcon,
+  HomeIcon,
+  StarIcon,
+  UserCircleIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
+import {
   Avatar,
   Button,
   Dropdown,
@@ -11,28 +21,18 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
+  forwardRef,
 } from "@nextui-org/react";
+import React, { type ElementType } from "react";
 import {
   NavLink,
   Link as RemixLink,
   useLocation,
   useSubmit,
-} from "@remix-run/react";
-import { forwardRef } from "@wesp-up/ui";
-import React, { type ElementType } from "react";
+} from "react-router";
 import { twMerge } from "tailwind-merge";
 
-import { useOptionalUser } from "#app/utils";
-import {
-  ArrowLeftStartOnRectangleIcon,
-  ChartPieIcon,
-  CheckCircleIcon,
-  ClipboardIcon,
-  HomeIcon,
-  StarIcon,
-  UserCircleIcon,
-  UserGroupIcon,
-} from "@heroicons/react/24/outline";
+import { useOptionalUser } from "~/utils.js";
 
 const iconClasses = "w-5 h-5 text-slate-600";
 
@@ -77,6 +77,7 @@ export function Header() {
             <DropdownMenu aria-label="Menu">
               <DropdownSection showDivider>
                 <DropdownItem
+                  key="profile"
                   href="/profile"
                   className={
                     location.pathname === "/profile"
@@ -91,6 +92,7 @@ export function Header() {
 
               <DropdownSection showDivider classNames={{ group: "space-y-1" }}>
                 <DropdownItem
+                  key="home"
                   href="/home"
                   className={
                     location.pathname === "/home"
@@ -102,6 +104,7 @@ export function Header() {
                   Home
                 </DropdownItem>
                 <DropdownItem
+                  key="people"
                   href="/people"
                   className={
                     location.pathname === "/people"
@@ -113,6 +116,7 @@ export function Header() {
                   People
                 </DropdownItem>
                 <DropdownItem
+                  key="chores"
                   href="/chores"
                   className={
                     location.pathname === "/chores"
@@ -124,6 +128,7 @@ export function Header() {
                   Chores
                 </DropdownItem>
                 <DropdownItem
+                  key="rewards"
                   href="/rewards"
                   className={
                     location.pathname === "/rewards"
@@ -135,6 +140,7 @@ export function Header() {
                   Rewards
                 </DropdownItem>
                 <DropdownItem
+                  key="assignments"
                   href="/assignments"
                   className={
                     location.pathname === "/assignments"
@@ -146,6 +152,7 @@ export function Header() {
                   Assignments
                 </DropdownItem>
                 <DropdownItem
+                  key="chore-chart"
                   href="/chore-chart"
                   className={
                     location.pathname === "/chore-chart"
@@ -159,6 +166,8 @@ export function Header() {
               </DropdownSection>
 
               <DropdownItem
+                key="logout"
+                /* eslint-disable-next-line @typescript-eslint/no-misused-promises */
                 onPress={() =>
                   submit(null, {
                     method: "post",
@@ -206,7 +215,7 @@ export interface MenuLinkProps {
   [prop: string]: unknown;
 }
 
-export const MenuLink = forwardRef<MenuLinkProps, "a">(
+export const MenuLink = forwardRef<"a", MenuLinkProps>(
   ({ label, to, icon: Icon, ...rest }: MenuLinkProps, ref) => {
     return (
       <NavLink

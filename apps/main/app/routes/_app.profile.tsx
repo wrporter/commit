@@ -1,15 +1,15 @@
 import { Avatar } from "@nextui-org/react";
-import { type LoaderFunction } from "@remix-run/node";
+import { type LoaderFunction } from "react-router";
 
-import { requireUser } from "#app/auth.server";
-import { useUser } from "#app/utils";
+import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { useUser } from "~/utils";
 
 export const loader: LoaderFunction = async ({ request }) => {
   await requireUser(request);
   return null;
 };
 
-export default function Page() {
+export default function Component() {
   const user = useUser();
 
   return (
