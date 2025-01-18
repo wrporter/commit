@@ -10,6 +10,7 @@ import {
   Server,
   type Options as ServerOptions,
 } from "@wesp-up/express";
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import express, {
   type Application,
   type NextFunction,
@@ -20,6 +21,8 @@ import express, {
 import type { ServerBuild } from "react-router";
 
 import { env } from "./env.server.js";
+
+import {db} from '~/lib/repository/db.server.js';
 
 declare module "react-router" {
   interface AppLoadContext {
@@ -210,6 +213,8 @@ export class ReactRouterServer extends Server {
     );
   }
 }
+
+await migrate(db, {migrationsFolder: './migrations'})
 
 const server = createReactRouterServer();
 const port = 3000;

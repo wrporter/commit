@@ -7,4 +7,6 @@ import { env } from "#server/env.server.js";
 
 export const client = remember("db-client", () => postgres(env.DATABASE_URL));
 
-export const db = remember("db", () => drizzle(client, { schema }));
+export const db = remember("db", () =>
+  drizzle(client, { schema, casing: "snake_case" })
+);
