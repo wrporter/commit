@@ -57,6 +57,7 @@ COPY --from=builder --chown=node /app/package*.json .
 COPY --from=builder --chown=node /app/node_modules ./node_modules
 COPY --from=builder --chown=node /app/build ./build
 COPY --from=builder --chown=node /app/server-build ./server-build
+COPY --from=builder --chown=node /app/migrations ./migrations
 
 USER node
 
