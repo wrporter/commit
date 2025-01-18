@@ -20,9 +20,8 @@ import express, {
 } from "express";
 import type { ServerBuild } from "react-router";
 
+import {db} from './db.server.js';
 import { env } from "./env.server.js";
-
-import {db} from '~/lib/repository/db.server.js';
 
 declare module "react-router" {
   interface AppLoadContext {

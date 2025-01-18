@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 
 import { rewards } from "#server/db-schema.server.js";
-import { db } from "~/lib/repository/db.server.js";
+import { db } from "#server/db.server.js";
 
 export type Reward = typeof rewards.$inferSelect;
 
