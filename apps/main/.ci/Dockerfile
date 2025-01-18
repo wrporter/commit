@@ -3,7 +3,9 @@
 ###############################################################################
 FROM node:20-alpine AS base
 
+WORKDIR /app
 RUN apk update && apk upgrade --no-cache
+RUN npm config set update-notifier false
 
 ###############################################################################
 # Install dependencies and build application
@@ -49,10 +51,13 @@ ENV BUILD_SHA=$BUILD_SHA
 ENV BUILD_VERSION=$BUILD_VERSION
 ENV BUILD_DATE=$BUILD_DATE
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=node /app/package*.json .
+COPY --from=builder --chown=node /app/node_modules ./node_modules
+COPY --from=builder --chown=node /app/build ./build
+COPY --from=builder --chown=node /app/server-build ./server-build
+
+USER node
 
 CMD ["node", "--enable-source-maps", "--require=./server-build/opentelemetry.cjs", "./server-build/main.js"]
