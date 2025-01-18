@@ -55,4 +55,4 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/public ./public
 
-CMD ["node", "./build/main.js"]
+CMD ["node", "--enable-source-maps", "--require=./server-build/opentelemetry.cjs", "./server-build/main.js"]
