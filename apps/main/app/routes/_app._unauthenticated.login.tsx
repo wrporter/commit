@@ -18,6 +18,7 @@ import {
   AuthorizationError,
   authenticator,
 } from "~/lib/authentication/authentication.server.js";
+import {FormInput} from '~/lib/ui/form-input.js';
 import { sessionStorage } from "~/session.server.js";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -110,20 +111,16 @@ export default function Component({ actionData }: Route.ComponentProps) {
         >
           {(form) => (
             <>
-              <Input
+              <FormInput
                 label="Email"
                 name="email"
                 type="email"
-                autoComplete="email"
-                isInvalid={Boolean(form.formState.fieldErrors.email)}
-                errorMessage={form.formState.fieldErrors.email}
               />
 
               <Input
                 label="Password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
                 isInvalid={Boolean(
                   form.formState.fieldErrors.password ||
                     // @ts-ignore - The type is not getting inferred properly.

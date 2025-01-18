@@ -1,4 +1,4 @@
-import { Button, Input, Link } from "@nextui-org/react";
+import { Button, Link } from "@nextui-org/react";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
 import * as React from "react";
@@ -19,6 +19,7 @@ import {
   getUser,
 } from "~/lib/authentication/authentication.server.js";
 import { createUser, getUserByEmail } from "~/lib/repository/user.server.js";
+import { FormInput } from "~/lib/ui/form-input.js";
 import { sessionStorage } from "~/session.server.js";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -113,63 +114,40 @@ export default function Signup() {
           className="flex flex-col gap-4"
           noValidate
         >
-          {(form) => (
-            <>
-              <Input
-                label="Display name"
-                id="displayName"
-                name="displayName"
-                type="displayName"
-                autoComplete="displayName"
-                isInvalid={Boolean(form.formState.fieldErrors.displayName)}
-                errorMessage={form.formState.fieldErrors.displayName}
-                className="w-full"
-              />
+          <FormInput
+            label="Display name"
+            name="displayName"
+            type="displayName"
+          />
 
-              <Input
-                label="Email"
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                isInvalid={Boolean(form.formState.fieldErrors.email)}
-                errorMessage={form.formState.fieldErrors.email}
-                className="w-full"
-              />
+          <FormInput label="Email" id="email" name="email" type="email" />
 
-              <Input
-                label="Password"
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="new-password"
-                isInvalid={Boolean(form.formState.fieldErrors.password)}
-                errorMessage={form.formState.fieldErrors.password}
-                className="w-full"
-              />
+          <FormInput
+            label="Password"
+            name="password"
+            type="password"
+          />
 
-              <input type="hidden" name="redirectTo" value={redirectTo} />
-              <Button type="submit" color="primary" className="w-full">
-                Create Account
-              </Button>
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+          <Button type="submit" color="primary" className="w-full">
+            Create Account
+          </Button>
 
-              <div className="flex items-center justify-center">
-                <div className="text-center text-sm text-gray-500">
-                  Already have an account?{" "}
-                  <Link
-                    as={RemixLink}
-                    to={{
-                      pathname: "/login",
-                      search: searchParams.toString(),
-                    }}
-                    size="sm"
-                  >
-                    Log in
-                  </Link>
-                </div>
-              </div>
-            </>
-          )}
+          <div className="flex items-center justify-center">
+            <div className="text-center text-sm text-gray-500">
+              Already have an account?{" "}
+              <Link
+                as={RemixLink}
+                to={{
+                  pathname: "/login",
+                  search: searchParams.toString(),
+                }}
+                size="sm"
+              >
+                Log in
+              </Link>
+            </div>
+          </div>
         </ValidatedForm>
       </div>
     </>

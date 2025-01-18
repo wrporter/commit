@@ -88,12 +88,9 @@ export function ResourceForm({
   footer,
   ...rest
 }: ResourceFormProps) {
-  const id = `upsert${resource.type}Form`;
-
   return (
     <ValidatedForm
       method={method}
-      id={id}
       validator={validator}
       onSubmit={onSubmit}
       {...rest}
