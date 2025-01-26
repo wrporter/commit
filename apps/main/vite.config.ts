@@ -7,6 +7,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 const MODE = process.env.NODE_ENV;
 
 export default defineConfig(({ isSsrBuild }) => ({
+  server: { allowedHosts: ["wesplocal.com"] },
   optimizeDeps: { exclude: ["fsevents"] },
   build: {
     cssMinify: MODE === "production",

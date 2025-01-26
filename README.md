@@ -13,6 +13,7 @@
 - [ ] Add dark mode.
 - [ ] Allow users to select a date in the past or future in the chore chart to see what chores are on that day.
 - [ ] Add ability to share a family or chore chart (view only?) with other users.
+- [ ] Add mobile responsive support.
 
 ## Resources
 

@@ -143,7 +143,7 @@ export function ResourceActions({
         <Dropdown>
           <DropdownTrigger>
             <Button isIconOnly size="sm" variant="light">
-              <EllipsisVerticalIcon className="text-default-500" />
+              <EllipsisVerticalIcon className="text-default-500 size-8" />
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Actions">
@@ -170,7 +170,7 @@ export function ResourceActions({
         </Dropdown>
       </div>
 
-      <Modal isOpen={editOpen} onOpenChange={setEditOpen}>
+      <Modal isOpen={editOpen} onOpenChange={setEditOpen} placement="center">
         <ModalContent>
           <ModalHeader>Edit {form.resource.type}</ModalHeader>
           <ResourceForm
@@ -188,7 +188,11 @@ export function ResourceActions({
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={deleteOpen} onOpenChange={setDeleteOpen}>
+      <Modal
+        isOpen={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        placement="center"
+      >
         <ModalContent>
           <ModalHeader>Delete {form.resource.type}</ModalHeader>
           <Form method="delete" onSubmit={() => setDeleteOpen(false)}>
@@ -231,7 +235,7 @@ export function ResourceModal({ form }: ResourceModalProps) {
       >
         Create {form.resource.type}
       </Button>
-      <Modal isOpen={open} onOpenChange={setOpen}>
+      <Modal isOpen={open} onOpenChange={setOpen} placement="center">
         <ModalContent>
           <ModalHeader>Create {form.resource.type}</ModalHeader>
           <ResourceForm
