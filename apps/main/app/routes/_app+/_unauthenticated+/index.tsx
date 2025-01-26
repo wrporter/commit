@@ -1,9 +1,9 @@
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import { Link } from "react-router";
 
 import { useOptionalUser } from "~/utils.js";
 
-export default function Index() {
+export default function Component() {
   const user = useOptionalUser();
 
   return (

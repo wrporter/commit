@@ -1,4 +1,4 @@
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import type { PropsWithChildren } from "react";
 import {
   Links,
@@ -14,6 +14,7 @@ import type { Route } from "./+types/root.js";
 import stylesheet from "./tailwind.css?url";
 
 import { getUser } from "~/lib/authentication/authentication.server.js";
+import { getHints } from "~/lib/client-hints/client-hints.js";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -38,6 +39,7 @@ export const meta: Route.MetaFunction = () => [
 export const loader = async ({ request }: Route.LoaderArgs) => {
   return {
     user: await getUser(request),
+    hints: getHints(request),
   };
 };
 
@@ -54,11 +56,11 @@ export function Layout({ children }: PropsWithChildren) {
       </head>
       <body className="h-full">
         {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-        <NextUIProvider className="h-full" navigate={navigate}>
+        <HeroUIProvider className="h-full" navigate={navigate}>
           {children}
           <ScrollRestoration />
           <Scripts />
-        </NextUIProvider>
+        </HeroUIProvider>
       </body>
     </html>
   );

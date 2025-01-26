@@ -45,10 +45,9 @@ authenticator.use(
     {
       clientId: env.GOOGLE_OAUTH_CLIENT_ID || "",
       clientSecret: env.GOOGLE_OAUTH_CLIENT_SECRET || "",
-      redirectURI: `${env.SITE_PROTOCOL}://${env.SITE_HOST}${port}/auth/google/callback`,
+      redirectURI: `${env.SITE_PROTOCOL}://${env.SITE_HOST}${port}/api/auth/google/callback`,
     },
     async (profile) => {
-      log.info({ message: "google verify", profile });
       let user = await getUserByEmail(profile.emails[0].value);
       if (!user) {
         user = await createUser({

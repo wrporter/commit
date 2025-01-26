@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
   Button,
   Dropdown,
@@ -11,16 +11,14 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import {
   ValidatedForm,
   type Validator,
   useFormContext,
 } from "@rvf/react-router";
-import { type ReactNode, useState } from "react";
-import { Form, Link } from "react-router";
-
-import { FormInput } from "~/lib/ui/form-input.js";
+import { type PropsWithChildren, type ReactNode, useState } from "react";
+import { Form } from "react-router";
 
 export interface HiddenField {
   name: string;
@@ -37,7 +35,7 @@ export interface ResourceFormProps {
   onSubmit: () => void;
   resource: Resource;
   validator: Validator<any>;
-  fields: ResourceFormField[];
+  fields: ReactNode[];
   hiddenFields: HiddenField[];
   footer: ReactNode;
   children?: ReactNode;
@@ -45,7 +43,7 @@ export interface ResourceFormProps {
 
 function constructHiddenFields(hiddenFields: HiddenField[]) {
   return hiddenFields.map((field) =>
-    field.value ? (
+    field.value !== undefined ? (
       <input
         key={field.name}
         type="hidden"
@@ -92,26 +90,15 @@ export function ResourceForm({
     <ValidatedForm
       method={method}
       validator={validator}
-      onSubmit={onSubmit}
+      onSubmitSuccess={onSubmit}
       {...rest}
     >
       <ModalBody>
         {constructHiddenFields(hiddenFields)}
 
-        <div className="space-y-2">
-          {children || undefined}
-
-          {fields
-            ? fields.map((field) => (
-                <FormInput
-                  key={field.label}
-                  label={field.label}
-                  {...field.textFieldProps}
-                />
-              ))
-            : undefined}
-
-          {/* <FormErrors formId={id} /> */}
+        <div className="flex flex-col gap-2">
+          {fields}
+          <FormErrors />
         </div>
       </ModalBody>
 
@@ -127,9 +114,10 @@ export interface Resource {
   component?: ReactNode;
 }
 
-export interface ResourcePillProps {
-  to: string;
+export interface ResourceActionsProps extends PropsWithChildren {
+  to?: string;
   form: ResourceFormPropagatedProps;
+  actions?: ReactNode;
 }
 
 export interface ResourceFormPropagatedProps
@@ -140,42 +128,46 @@ export interface ResourceFormPropagatedProps
   [key: string]: unknown;
 }
 
-export function ResourcePill({ to, form }: ResourcePillProps) {
+export function ResourceActions({
+  to,
+  form,
+  actions,
+  children,
+}: ResourceActionsProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   return (
     <>
-      <div>
-        <Link key={form.resource.id} to={to}>
-          {form.resource.component ?? form.resource.name}
-        </Link>
+      <div className="relative flex justify-end items-center gap-2">
+        <Dropdown>
+          <DropdownTrigger>
+            <Button isIconOnly size="sm" variant="light">
+              <EllipsisVerticalIcon className="text-default-500" />
+            </Button>
+          </DropdownTrigger>
+          <DropdownMenu aria-label="Actions">
+            <>{actions}</>
 
-        <div className="flex flex-col border-l border-gray-400">
-          <Dropdown>
-            <DropdownTrigger>
-              <Button
-                variant="flat"
-                className="flex-grow border-none rounded-l-none rounded-r-sm p-1 min-w-10 w-10"
-              >
-                <ChevronDownIcon className="w-6 h-6" />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Options">
-              <DropdownItem key="edit" onPress={() => setEditOpen(true)}>
-                Edit
+            {to ? (
+              <DropdownItem key="view" href={to}>
+                View
               </DropdownItem>
-              <DropdownItem
-                key="delete"
-                onPress={() => setDeleteOpen(true)}
-                color="danger"
-                className="text-danger"
-              >
-                Delete
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </div>
+            ) : null}
+
+            <DropdownItem key="edit" onPress={() => setEditOpen(true)}>
+              Edit
+            </DropdownItem>
+            <DropdownItem
+              key="delete"
+              onPress={() => setDeleteOpen(true)}
+              color="danger"
+              className="text-danger"
+            >
+              Delete
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
       </div>
 
       <Modal isOpen={editOpen} onOpenChange={setEditOpen}>
@@ -190,7 +182,9 @@ export function ResourcePill({ to, form }: ResourcePillProps) {
                 Save
               </Button>
             }
-          />
+          >
+            {children}
+          </ResourceForm>
         </ModalContent>
       </Modal>
 
@@ -230,7 +224,11 @@ export function ResourceModal({ form }: ResourceModalProps) {
 
   return (
     <>
-      <Button color="primary" onClick={() => setOpen(true)}>
+      <Button
+        color="primary"
+        onPress={() => setOpen(true)}
+        startContent={<PlusIcon className="w-5" />}
+      >
         Create {form.resource.type}
       </Button>
       <Modal isOpen={open} onOpenChange={setOpen}>

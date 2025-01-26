@@ -1,10 +1,7 @@
 import {
   ArrowLeftStartOnRectangleIcon,
-  ChartPieIcon,
-  CheckCircleIcon,
-  ClipboardIcon,
+  Bars3BottomLeftIcon,
   HomeIcon,
-  StarIcon,
   UserCircleIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
@@ -22,7 +19,7 @@ import {
   NavbarContent,
   NavbarItem,
   forwardRef,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import React, { type ElementType } from "react";
 import {
   NavLink,
@@ -43,17 +40,53 @@ export function Header() {
 
   return (
     <Navbar isBordered maxWidth="full" classNames={{ wrapper: "px-2 sm:px-6" }}>
+      <NavbarBrand className="flex flex-grow-0 items-center justify-center">
+        <Link as={RemixLink} to={user ? "/home" : "/"} className="w-8">
+          <img src="/assets/logo-icon.svg" alt="Commit" />
+        </Link>
+      </NavbarBrand>
+
       <NavbarContent>
-        <NavbarBrand>
-          <Link
-            as={RemixLink}
-            to={user ? "/home" : "/"}
-            className="p-1 space-x-2"
-          >
-            <img src="/assets/logo-icon.svg" alt="Commit" className="h-8" />
-            <p className="font-bold text-foreground hidden sm:flex">Commit</p>
-          </Link>
-        </NavbarBrand>
+        {user && (
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                isIconOnly
+                aria-label="Navigation"
+                color="primary"
+                variant="light"
+              >
+                <Bars3BottomLeftIcon className="text-default-600 w-8" />
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Menu" variant="faded">
+              <DropdownItem
+                key="home"
+                href="/home"
+                className={
+                  location.pathname === "/home"
+                    ? "bg-blue-100 dark:bg-blue-900"
+                    : undefined
+                }
+                startContent={<HomeIcon className={iconClasses} />}
+              >
+                Home
+              </DropdownItem>
+              <DropdownItem
+                key="families"
+                href="/families"
+                className={
+                  location.pathname === "/families"
+                    ? "bg-blue-100 dark:bg-blue-900"
+                    : undefined
+                }
+                startContent={<UserGroupIcon className={iconClasses} />}
+              >
+                Families
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        )}
       </NavbarContent>
 
       <NavbarContent justify="end" className="gap-2">
@@ -67,6 +100,8 @@ export function Header() {
                 src={user.imageUrl ?? undefined}
                 name={user.displayName}
                 showFallback
+                size="md"
+                color="primary"
                 fallback={
                   <span className="text-base">
                     {user.displayName.charAt(0).toUpperCase()}
@@ -74,7 +109,7 @@ export function Header() {
                 }
               />
             </DropdownTrigger>
-            <DropdownMenu aria-label="Menu">
+            <DropdownMenu aria-label="Menu" variant="faded">
               <DropdownSection showDivider>
                 <DropdownItem
                   key="profile"
@@ -90,88 +125,13 @@ export function Header() {
                 </DropdownItem>
               </DropdownSection>
 
-              <DropdownSection showDivider classNames={{ group: "space-y-1" }}>
-                <DropdownItem
-                  key="home"
-                  href="/home"
-                  className={
-                    location.pathname === "/home"
-                      ? "bg-blue-100 dark:bg-blue-900"
-                      : undefined
-                  }
-                  startContent={<HomeIcon className={iconClasses} />}
-                >
-                  Home
-                </DropdownItem>
-                <DropdownItem
-                  key="people"
-                  href="/people"
-                  className={
-                    location.pathname === "/people"
-                      ? "bg-blue-100 dark:bg-blue-900"
-                      : undefined
-                  }
-                  startContent={<UserGroupIcon className={iconClasses} />}
-                >
-                  People
-                </DropdownItem>
-                <DropdownItem
-                  key="chores"
-                  href="/chores"
-                  className={
-                    location.pathname === "/chores"
-                      ? "bg-blue-100 dark:bg-blue-900"
-                      : undefined
-                  }
-                  startContent={<CheckCircleIcon className={iconClasses} />}
-                >
-                  Chores
-                </DropdownItem>
-                <DropdownItem
-                  key="rewards"
-                  href="/rewards"
-                  className={
-                    location.pathname === "/rewards"
-                      ? "bg-blue-100 dark:bg-blue-900"
-                      : undefined
-                  }
-                  startContent={<StarIcon className={iconClasses} />}
-                >
-                  Rewards
-                </DropdownItem>
-                <DropdownItem
-                  key="assignments"
-                  href="/assignments"
-                  className={
-                    location.pathname === "/assignments"
-                      ? "bg-blue-100 dark:bg-blue-900"
-                      : undefined
-                  }
-                  startContent={<ClipboardIcon className={iconClasses} />}
-                >
-                  Assignments
-                </DropdownItem>
-                <DropdownItem
-                  key="chore-chart"
-                  href="/chore-chart"
-                  className={
-                    location.pathname === "/chore-chart"
-                      ? "bg-blue-100 dark:bg-blue-900"
-                      : undefined
-                  }
-                  startContent={<ChartPieIcon className={iconClasses} />}
-                >
-                  Chore Chart
-                </DropdownItem>
-              </DropdownSection>
-
               <DropdownItem
                 key="logout"
                 /* eslint-disable-next-line @typescript-eslint/no-misused-promises */
                 onPress={() =>
                   submit(null, {
                     method: "post",
-                    action: "/logout",
+                    action: "/api/auth/logout",
                     encType: "text/plain",
                   })
                 }

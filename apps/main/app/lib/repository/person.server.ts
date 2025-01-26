@@ -1,31 +1,69 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, getTableColumns } from "drizzle-orm";
 
-import { people } from "#server/db-schema.server.js";
 import { db } from "#server/db.server.js";
+import {
+  families,
+  familyUsers,
+  people,
+} from "#server/schema/db-schema.server.js";
 
 export type Person = typeof people.$inferSelect;
 
 export async function createPerson(
-  userId: string,
-  name: string,
-  birthday: string
+  person: Pick<Person, "familyId" | "createdBy" | "name" | "birthday">
 ) {
-  const [person] = await db
+  const [fullPerson] = await db
     .insert(people)
-    .values({ userId, name, birthday })
+    .values({ ...person, updatedBy: person.createdBy })
     .returning();
-  return person;
+  return fullPerson;
 }
 
-export async function getPeople(userId: string) {
-  return (await db
-    .select()
+export async function getPerson(
+  userId: string,
+  familyId: string,
+  personId: string
+) {
+  return db
+    .select(getTableColumns(people))
     .from(people)
-    .where(eq(people.userId, userId))) as Person[];
+    .innerJoin(families, eq(families.id, people.familyId))
+    .innerJoin(familyUsers, eq(familyUsers.userId, people.familyId))
+    .where(
+      and(
+        eq(familyUsers.userId, userId),
+        eq(people.familyId, familyId),
+        eq(people.id, personId)
+      )
+    );
 }
 
-export async function deletePerson(userId: string, personId: string) {
-  await db
+export async function getPeople(userId: string, familyId: string) {
+  const users = await db
+    .select()
+    .from(familyUsers)
+    .where(
+      and(eq(familyUsers.familyId, familyId), eq(familyUsers.userId, userId))
+    );
+
+  if (users.length === 0) {
+    return [];
+  }
+
+  return db.select().from(people).where(eq(people.familyId, familyId));
+}
+
+export async function updatePerson(
+  person: Pick<Person, "id" | "name" | "birthday" | "updatedBy">
+) {
+  return db
+    .update(people)
+    .set({ ...person, updatedAt: new Date() })
+    .where(eq(people.id, person.id));
+}
+
+export async function deletePerson(familyId: string, personId: string) {
+  return db
     .delete(people)
-    .where(and(eq(people.userId, userId), eq(people.id, personId)));
+    .where(and(eq(people.familyId, familyId), eq(people.id, personId)));
 }

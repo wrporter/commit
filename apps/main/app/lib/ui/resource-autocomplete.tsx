@@ -2,7 +2,7 @@ import {
   Autocomplete,
   AutocompleteItem,
   type AutocompleteProps,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { useField } from "@rvf/react-router";
 import { useState } from "react";
 

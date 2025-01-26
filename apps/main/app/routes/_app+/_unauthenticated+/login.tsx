@@ -1,4 +1,4 @@
-import { Button, Checkbox, Input, Link } from "@nextui-org/react";
+import { Button, Checkbox, Input, Link } from "@heroui/react";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
 import * as React from "react";
@@ -12,13 +12,13 @@ import {
 } from "react-router";
 import { z } from "zod";
 
-import type { Route } from "./+types/_app._unauthenticated.login.js";
+import type { Route } from "./+types/_layout.js";
 
 import {
   AuthorizationError,
   authenticator,
 } from "~/lib/authentication/authentication.server.js";
-import {FormInput} from '~/lib/ui/form-input.js';
+import { FormInput } from "~/lib/ui/form-input.js";
 import { sessionStorage } from "~/session.server.js";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -84,7 +84,7 @@ export default function Component({ actionData }: Route.ComponentProps) {
       <h2 className="mb-6 text-center text-4xl">Log in</h2>
 
       <Form
-        action="/auth/google"
+        action="/api/auth/google"
         method="post"
         className="mx-auto mb-8 w-full max-w-md"
       >
@@ -111,11 +111,7 @@ export default function Component({ actionData }: Route.ComponentProps) {
         >
           {(form) => (
             <>
-              <FormInput
-                label="Email"
-                name="email"
-                type="email"
-              />
+              <FormInput label="Email" name="email" type="email" />
 
               <Input
                 label="Password"

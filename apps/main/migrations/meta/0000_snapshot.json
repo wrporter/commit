@@ -1,5 +1,5 @@
 {
-  "id": "6cb7469f-f36d-42ee-be89-e6ae6b9d3109",
+  "id": "667b3b22-9585-4482-ac3d-fe619fa67173",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -8,8 +8,15 @@
       "name": "chore_assignments",
       "schema": "",
       "columns": {
-        "user_id": {
-          "name": "user_id",
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -26,9 +33,9 @@
           "primaryKey": false,
           "notNull": true
         },
-        "day": {
-          "name": "day",
-          "type": "integer",
+        "day_of_week": {
+          "name": "day_of_week",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": true
         },
@@ -39,22 +46,66 @@
           "notNull": true,
           "default": "now()"
         },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "chore_assignments_person_id_chore_id_day_of_week_index": {
+          "name": "chore_assignments_person_id_chore_id_day_of_week_index",
+          "columns": [
+            {
+              "expression": "person_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "chore_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "day_of_week",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "chore_assignments_user_id_users_id_fk": {
-          "name": "chore_assignments_user_id_users_id_fk",
+        "chore_assignments_family_id_families_id_fk": {
+          "name": "chore_assignments_family_id_families_id_fk",
           "tableFrom": "chore_assignments",
-          "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
@@ -62,8 +113,12 @@
           "name": "chore_assignments_person_id_people_id_fk",
           "tableFrom": "chore_assignments",
           "tableTo": "people",
-          "columnsFrom": ["person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
         },
@@ -71,45 +126,74 @@
           "name": "chore_assignments_chore_id_chores_id_fk",
           "tableFrom": "chore_assignments",
           "tableTo": "chores",
-          "columnsFrom": ["chore_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "chore_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "restrict",
           "onUpdate": "cascade"
+        },
+        "chore_assignments_created_by_users_id_fk": {
+          "name": "chore_assignments_created_by_users_id_fk",
+          "tableFrom": "chore_assignments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "chore_assignments_updated_by_users_id_fk": {
+          "name": "chore_assignments_updated_by_users_id_fk",
+          "tableFrom": "chore_assignments",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "chore_assignment_pkey": {
-          "name": "chore_assignment_pkey",
-          "columns": ["person_id", "chore_id", "day"]
-        }
-      },
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "public.chore_rewards": {
-      "name": "chore_rewards",
+    "public.chores": {
+      "name": "chores",
       "schema": "",
       "columns": {
-        "user_id": {
-          "name": "user_id",
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "person_id": {
-          "name": "person_id",
-          "type": "uuid",
+        "name": {
+          "name": "name",
+          "type": "varchar(40)",
           "primaryKey": false,
           "notNull": true
         },
-        "chore_id": {
-          "name": "chore_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "amount": {
-          "name": "amount",
-          "type": "double precision",
+        "reward": {
+          "name": "reward",
+          "type": "numeric(16, 4)",
           "primaryKey": false,
           "notNull": true
         },
@@ -120,58 +204,109 @@
           "notNull": true,
           "default": "now()"
         },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "chores_family_id_id_index": {
+          "name": "chores_family_id_id_index",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "chore_rewards_user_id_users_id_fk": {
-          "name": "chore_rewards_user_id_users_id_fk",
-          "tableFrom": "chore_rewards",
+        "chores_family_id_families_id_fk": {
+          "name": "chores_family_id_families_id_fk",
+          "tableFrom": "chores",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "chores_created_by_users_id_fk": {
+          "name": "chores_created_by_users_id_fk",
+          "tableFrom": "chores",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
-        "chore_rewards_person_id_people_id_fk": {
-          "name": "chore_rewards_person_id_people_id_fk",
-          "tableFrom": "chore_rewards",
-          "tableTo": "people",
-          "columnsFrom": ["person_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "chore_rewards_chore_id_chores_id_fk": {
-          "name": "chore_rewards_chore_id_chores_id_fk",
-          "tableFrom": "chore_rewards",
-          "tableTo": "chores",
-          "columnsFrom": ["chore_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+        "chores_updated_by_users_id_fk": {
+          "name": "chores_updated_by_users_id_fk",
+          "tableFrom": "chores",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "chore_rewards_pkey": {
-          "name": "chore_rewards_pkey",
-          "columns": ["person_id", "chore_id"]
-        }
-      },
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "public.chore_statuses": {
-      "name": "chore_statuses",
+    "public.commissions": {
+      "name": "commissions",
       "schema": "",
       "columns": {
-        "user_id": {
-          "name": "user_id",
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -186,16 +321,49 @@
           "name": "chore_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "day": {
-          "name": "day",
-          "type": "date",
+        "chore_name": {
+          "name": "chore_name",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "base_amount": {
+          "name": "base_amount",
+          "type": "numeric(16, 4)",
           "primaryKey": false,
           "notNull": true
         },
-        "completed_at": {
-          "name": "completed_at",
+        "rating": {
+          "name": "rating",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 3
+        },
+        "final_amount": {
+          "name": "final_amount",
+          "type": "numeric(16, 4)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "balance": {
+          "name": "balance",
+          "type": "numeric(16, 4)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "paid_at": {
+          "name": "paid_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
@@ -215,46 +383,84 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "commissions_family_id_person_id_chore_id_index": {
+          "name": "commissions_family_id_person_id_chore_id_index",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "person_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "chore_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "chore_statuses_user_id_users_id_fk": {
-          "name": "chore_statuses_user_id_users_id_fk",
-          "tableFrom": "chore_statuses",
-          "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+        "commissions_family_id_families_id_fk": {
+          "name": "commissions_family_id_families_id_fk",
+          "tableFrom": "commissions",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "chore_statuses_person_id_people_id_fk": {
-          "name": "chore_statuses_person_id_people_id_fk",
-          "tableFrom": "chore_statuses",
+        "commissions_person_id_people_id_fk": {
+          "name": "commissions_person_id_people_id_fk",
+          "tableFrom": "commissions",
           "tableTo": "people",
-          "columnsFrom": ["person_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "person_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         },
-        "chore_statuses_chore_id_chores_id_fk": {
-          "name": "chore_statuses_chore_id_chores_id_fk",
-          "tableFrom": "chore_statuses",
+        "commissions_chore_id_chores_id_fk": {
+          "name": "commissions_chore_id_chores_id_fk",
+          "tableFrom": "commissions",
           "tableTo": "chores",
-          "columnsFrom": ["chore_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "chore_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
         }
       },
-      "compositePrimaryKeys": {
-        "chore_statuses_pkey": {
-          "name": "chore_statuses_pkey",
-          "columns": ["person_id", "chore_id", "day"]
-        }
-      },
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "public.chores": {
-      "name": "chores",
+    "public.families": {
+      "name": "families",
       "schema": "",
       "columns": {
         "id": {
@@ -264,21 +470,9 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "icon": {
-          "name": "icon",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "name": {
           "name": "name",
-          "type": "text",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
         },
@@ -289,37 +483,69 @@
           "notNull": true,
           "default": "now()"
         },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "chores_user_id_users_id_fk": {
-          "name": "chores_user_id_users_id_fk",
-          "tableFrom": "chores",
+        "families_created_by_users_id_fk": {
+          "name": "families_created_by_users_id_fk",
+          "tableFrom": "families",
           "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "families_updated_by_users_id_fk": {
+          "name": "families_updated_by_users_id_fk",
+          "tableFrom": "families",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "public.commissions": {
-      "name": "commissions",
+    "public.family_users": {
+      "name": "family_users",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
+        "family_id": {
+          "name": "family_id",
           "type": "uuid",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true
         },
         "user_id": {
@@ -328,18 +554,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "person_id": {
-          "name": "person_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "amount": {
-          "name": "amount",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -347,37 +561,94 @@
           "notNull": true,
           "default": "now()"
         },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "commissions_user_id_users_id_fk": {
-          "name": "commissions_user_id_users_id_fk",
-          "tableFrom": "commissions",
-          "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+        "family_users_family_id_families_id_fk": {
+          "name": "family_users_family_id_families_id_fk",
+          "tableFrom": "family_users",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
-        "commissions_person_id_people_id_fk": {
-          "name": "commissions_person_id_people_id_fk",
-          "tableFrom": "commissions",
-          "tableTo": "people",
-          "columnsFrom": ["person_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
+        "family_users_user_id_users_id_fk": {
+          "name": "family_users_user_id_users_id_fk",
+          "tableFrom": "family_users",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "family_users_created_by_users_id_fk": {
+          "name": "family_users_created_by_users_id_fk",
+          "tableFrom": "family_users",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "family_users_updated_by_users_id_fk": {
+          "name": "family_users_updated_by_users_id_fk",
+          "tableFrom": "family_users",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "compositePrimaryKeys": {
+        "family_users_family_id_user_id_pk": {
+          "name": "family_users_family_id_user_id_pk",
+          "columns": [
+            "family_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.people": {
       "name": "people",
@@ -390,15 +661,15 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_id": {
-          "name": "user_id",
+        "family_id": {
+          "name": "family_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "text",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
         },
@@ -415,28 +686,95 @@
           "notNull": true,
           "default": "now()"
         },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "people_family_id_id_index": {
+          "name": "people_family_id_id_index",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
-        "people_user_id_users_id_fk": {
-          "name": "people_user_id_users_id_fk",
+        "people_family_id_families_id_fk": {
+          "name": "people_family_id_families_id_fk",
           "tableFrom": "people",
-          "tableTo": "users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "cascade"
+        },
+        "people_created_by_users_id_fk": {
+          "name": "people_created_by_users_id_fk",
+          "tableFrom": "people",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "people_updated_by_users_id_fk": {
+          "name": "people_updated_by_users_id_fk",
+          "tableFrom": "people",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.users": {
       "name": "users",
@@ -463,7 +801,7 @@
         },
         "image": {
           "name": "image",
-          "type": "text",
+          "type": "bytea",
           "primaryKey": false,
           "notNull": false
         },
@@ -501,8 +839,8 @@
         }
       },
       "indexes": {
-        "email_key": {
-          "name": "email_key",
+        "users_email_index": {
+          "name": "users_email_index",
           "columns": [
             {
               "expression": "email",
@@ -519,11 +857,18 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {},
   "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},

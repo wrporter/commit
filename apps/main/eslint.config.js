@@ -29,6 +29,7 @@ export default [
         { devDependencies: ["**/*.{test,config,build,fake,mock,seed}.*"] },
       ],
       "@typescript-eslint/only-throw-error": "off",
+      "@typescript-eslint/unbound-method": "off",
     },
     ignores: [".react-router/**/*"],
   },
@@ -38,7 +39,6 @@ export default [
       "@typescript-eslint/no-unsafe-assignment": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
-      "@typescript-eslint/unbound-method": "off",
     },
   },
 ];

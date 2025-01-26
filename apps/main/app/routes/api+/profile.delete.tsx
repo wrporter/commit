@@ -4,10 +4,9 @@ import {
   redirect,
 } from "react-router";
 
-import { action as logout } from "./logout.js";
-
 import { requireUser } from "~/lib/authentication/authentication.server.js";
 import { deleteUserByEmail } from "~/lib/repository/user.server.js";
+import { action as logout } from "~/routes/api+/auth.logout.js";
 
 export const action: ActionFunction = async ({ request, params }) => {
   const user = await requireUser(request);

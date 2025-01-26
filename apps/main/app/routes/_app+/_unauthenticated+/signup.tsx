@@ -1,4 +1,4 @@
-import { Button, Link } from "@nextui-org/react";
+import { Button, Link } from "@heroui/react";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
 import * as React from "react";
@@ -80,7 +80,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export const meta: MetaFunction = () => [{ title: "Sign Up" }];
 
-export default function Signup() {
+export default function Component() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? "/";
 
@@ -89,7 +89,7 @@ export default function Signup() {
       <h2 className="mb-6 text-center text-4xl">Sign up</h2>
 
       <Form
-        action="/auth/google"
+        action="/api/auth/google"
         method="post"
         className="mx-auto mb-8 w-full max-w-md"
       >
@@ -122,11 +122,7 @@ export default function Signup() {
 
           <FormInput label="Email" id="email" name="email" type="email" />
 
-          <FormInput
-            label="Password"
-            name="password"
-            type="password"
-          />
+          <FormInput label="Password" name="password" type="password" />
 
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <Button type="submit" color="primary" className="w-full">
