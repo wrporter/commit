@@ -9,7 +9,8 @@ import {
 } from "@heroui/react";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
-import { data } from "react-router";
+import type { ReactNode } from "react";
+import { data, useOutletContext } from "react-router";
 import { z } from "zod";
 
 import type { Route } from "./+types/assignments.js";
@@ -158,99 +159,106 @@ export default function Component({ loaderData }: Route.ComponentProps) {
     hiddenFields: [],
     resource: { type: "Assignment" },
   };
+  const { header } = useOutletContext<{ header: ReactNode }>();
 
-  return DAYS.map((day, dayOfWeek) => (
-    <div key={day}>
-      <h3 className="text-lg text-center font-bold my-6 bg-gradient-to-r from-green-200 to-blue-200">
-        {day}
-      </h3>
+  return (
+    <>
+      {header}
 
-      <Table
-        aria-label="Table of assignments"
-        bottomContent={
-          <ValidatedForm
-            method="post"
-            validator={assignmentValidator}
-            className="flex gap-2 items-center"
+      {DAYS.map((day, dayOfWeek) => (
+        <div key={day}>
+          <h3 className="text-lg text-center font-bold my-6 bg-gradient-to-r from-green-200 to-blue-200">
+            {day}
+          </h3>
+
+          <Table
+            aria-label="Table of assignments"
+            bottomContent={
+              <ValidatedForm
+                method="post"
+                validator={assignmentValidator}
+                className="flex flex-col sm:flex-row gap-2 items-center"
+              >
+                <input type="hidden" name="dayOfWeek" value={dayOfWeek} />
+
+                <div className="flex flex-col sm:flex-row w-full gap-2">
+                  <ResourceAutocomplete<Person>
+                    label="Person"
+                    name="person"
+                    placeholder="Select person"
+                    isRequired
+                    displayValue={(person) => person?.name ?? ""}
+                    resources={loaderData.people}
+                    className="w-full"
+                    size="sm"
+                  />
+
+                  <ResourceAutocomplete<Chore>
+                    label="Chore"
+                    name="chore"
+                    placeholder="Select chore"
+                    isRequired
+                    displayValue={(chore) => chore?.name ?? ""}
+                    resources={loaderData.chores}
+                    className="w-full"
+                    size="sm"
+                  />
+                </div>
+
+                <Button type="submit" color="primary" variant="ghost">
+                  Add
+                </Button>
+
+                <FormErrors />
+              </ValidatedForm>
+            }
           >
-            <input type="hidden" name="dayOfWeek" value={dayOfWeek} />
-
-            <div className="flex flex-1 gap-2">
-              <ResourceAutocomplete<Person>
-                label="Person"
-                name="person"
-                placeholder="Select person"
-                isRequired
-                displayValue={(person) => person?.name ?? ""}
-                resources={loaderData.people}
-                className="w-full"
-                size="sm"
-              />
-
-              <ResourceAutocomplete<Chore>
-                label="Chore"
-                name="chore"
-                placeholder="Select chore"
-                isRequired
-                displayValue={(chore) => chore?.name ?? ""}
-                resources={loaderData.chores}
-                className="w-full"
-                size="sm"
-              />
-            </div>
-
-            <Button type="submit" color="primary" variant="ghost">
-              Add
-            </Button>
-
-            <FormErrors />
-          </ValidatedForm>
-        }
-      >
-        <TableHeader>
-          <TableColumn>Person</TableColumn>
-          <TableColumn>Chore</TableColumn>
-          <TableColumn>Reward</TableColumn>
-          <TableColumn align="end">Actions</TableColumn>
-        </TableHeader>
-        <TableBody
-          emptyContent="No assignments found"
-          items={loaderData.assignments.filter(
-            (assignment) => assignment.dayOfWeek === dayOfWeek
-          )}
-        >
-          {(assignment) => (
-            <TableRow key={assignment.id}>
-              <TableCell>{assignment.personName}</TableCell>
-              <TableCell>{assignment.choreName}</TableCell>
-              <TableCell>
-                <Currency value={assignment.choreReward} />
-              </TableCell>
-              <TableCell>
-                <ResourceActions
-                  key={assignment.id}
-                  form={{
-                    ...form,
-                    defaultValues: {
-                      person: assignment.personId,
-                      chore: assignment.choreId,
-                    },
-                    resource: {
-                      type: form.resource.type,
-                      id: assignment.id,
-                      name: `${assignment.personName} - ${assignment.choreName}`,
-                    },
-                    hiddenFields: form.hiddenFields.concat([
-                      { name: "assignmentId", value: assignment.id },
-                      { name: "dayOfWeek", value: dayOfWeek },
-                    ]),
-                  }}
-                />
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
-  ));
+            <TableHeader>
+              <TableColumn>Person</TableColumn>
+              <TableColumn>Chore</TableColumn>
+              <TableColumn className="hidden sm:table-cell">Reward</TableColumn>
+              <TableColumn align="end">Actions</TableColumn>
+            </TableHeader>
+            <TableBody
+              emptyContent="No assignments found"
+              items={loaderData.assignments.filter(
+                (assignment) => assignment.dayOfWeek === dayOfWeek
+              )}
+            >
+              {(assignment) => (
+                <TableRow key={assignment.id}>
+                  <TableCell>{assignment.personName}</TableCell>
+                  <TableCell>{assignment.choreName}</TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Currency value={assignment.choreReward} />
+                  </TableCell>
+                  <TableCell>
+                    <ResourceActions
+                      key={assignment.id}
+                      form={{
+                        ...form,
+                        defaultValues: {
+                          person: assignment.personId,
+                          chore: assignment.choreId,
+                        },
+                        resource: {
+                          type: form.resource.type,
+                          id: assignment.id,
+                          name: `${assignment.personName} - ${assignment.choreName}`,
+                        },
+                        hiddenFields: form.hiddenFields.concat([
+                          { name: "assignmentId", value: assignment.id },
+                          { name: "dayOfWeek", value: dayOfWeek },
+                        ]),
+                      }}
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      ))}
+    </>
+  );
 }

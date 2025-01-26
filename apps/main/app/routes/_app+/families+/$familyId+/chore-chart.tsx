@@ -3,6 +3,8 @@ import {
   Autocomplete,
   AutocompleteItem,
   Button,
+  Card,
+  CardBody,
   Checkbox,
   Chip,
   Table,
@@ -14,12 +16,13 @@ import {
 } from "@heroui/react";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import Decimal from "decimal.js";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import {
   type LoaderFunctionArgs,
   data,
   useFetcher,
   useLoaderData,
+  useOutletContext,
 } from "react-router";
 import { tv } from "tailwind-variants";
 
@@ -192,68 +195,133 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       fetcher.submit(data, { method: "post" });
     };
 
+  const { header } = useOutletContext<{ header: ReactNode }>();
+
   return (
-    <Table
-      aria-label="Chore chart for today"
-      bottomContentPlacement="outside"
-      bottomContent={<CustomChoreCommission />}
-    >
-      <TableHeader>
-        <TableColumn>Status</TableColumn>
-        <TableColumn>Person</TableColumn>
-        <TableColumn>Chore</TableColumn>
-        <TableColumn>Reward</TableColumn>
-      </TableHeader>
-      <TableBody emptyContent="No chores today" items={chores}>
-        {(assignment) => {
+    <>
+      {header}
+
+      <div className="sm:hidden flex flex-col gap-2 mt-4">
+        {chores.map((assignment) => {
           const commission = loaderData.commissions.find(
             ({ personId, choreId }) =>
               assignment.personId === personId && assignment.choreId === choreId
           );
 
-          const isSelected = Boolean(commission);
+          const isCompleted = Boolean(commission);
           const isPaid = Boolean(commission?.paidAt);
 
           return (
-            <TableRow
+            <Card
               key={assignment.id}
-              onClick={handleSelect(assignment, commission)}
-              className={rowVariants({
-                disabled: isPaid,
-                selected: isSelected,
-              })}
+              className="w-full"
+              isHoverable={!isPaid}
+              isPressable={!isPaid}
+              isDisabled={isPaid}
+              onPress={handleSelect(assignment, commission)}
             >
-              <TableCell className="flex items-center gap-1">
-                <Checkbox
-                  isSelected={isSelected}
-                  onValueChange={handleSelect(assignment, commission)}
-                />
-                {assignment.type === "commission" && (
-                  <Chip size="sm" color="primary" variant="bordered">
-                    Bonus
-                  </Chip>
-                )}
-                {isPaid && (
-                  <Chip
-                    size="sm"
-                    color="success"
-                    variant="bordered"
-                    startContent={<CheckIcon width={12} />}
-                  >
-                    Paid
-                  </Chip>
-                )}
-              </TableCell>
-              <TableCell>{assignment.personName}</TableCell>
-              <TableCell>{assignment.choreName}</TableCell>
-              <TableCell>
-                <Currency value={assignment.choreReward} />
-              </TableCell>
-            </TableRow>
+              <CardBody className="flex gap-2">
+                <div className="flex justify-between">
+                  <div className="flex">
+                    <Checkbox
+                      isSelected={isCompleted}
+                      onValueChange={handleSelect(assignment, commission)}
+                    />
+                    <div className="font-bold">{assignment.personName}</div>
+                  </div>
+                  <div>{assignment.choreName}</div>
+                </div>
+
+                <div className="flex justify-between">
+                  <div className="flex gap-2">
+                    {assignment.type === "commission" && (
+                      <Chip size="sm" color="primary" variant="bordered">
+                        Bonus
+                      </Chip>
+                    )}
+                    {isPaid && (
+                      <Chip
+                        size="sm"
+                        color="success"
+                        variant="bordered"
+                        startContent={<CheckIcon width={12} />}
+                      >
+                        Paid
+                      </Chip>
+                    )}
+                  </div>
+
+                  <div>
+                    <Currency value={assignment.choreReward} />
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
           );
-        }}
-      </TableBody>
-    </Table>
+        })}
+      </div>
+
+      <Table aria-label="Chore chart for today" className="hidden sm:flex mt-4">
+        <TableHeader>
+          <TableColumn>Status</TableColumn>
+          <TableColumn>Person</TableColumn>
+          <TableColumn>Chore</TableColumn>
+          <TableColumn>Reward</TableColumn>
+        </TableHeader>
+        <TableBody emptyContent="No chores today" items={chores}>
+          {(assignment) => {
+            const commission = loaderData.commissions.find(
+              ({ personId, choreId }) =>
+                assignment.personId === personId &&
+                assignment.choreId === choreId
+            );
+
+            const isCompleted = Boolean(commission);
+            const isPaid = Boolean(commission?.paidAt);
+
+            return (
+              <TableRow
+                key={assignment.id}
+                onClick={handleSelect(assignment, commission)}
+                className={rowVariants({
+                  disabled: isPaid,
+                  selected: isCompleted,
+                })}
+              >
+                <TableCell className="flex items-center gap-1">
+                  <Checkbox
+                    isSelected={isCompleted}
+                    onValueChange={handleSelect(assignment, commission)}
+                  />
+                  {assignment.type === "commission" && (
+                    <Chip size="sm" color="primary" variant="bordered">
+                      Bonus
+                    </Chip>
+                  )}
+                  {isPaid && (
+                    <Chip
+                      size="sm"
+                      color="success"
+                      variant="bordered"
+                      startContent={<CheckIcon width={12} />}
+                    >
+                      Paid
+                    </Chip>
+                  )}
+                </TableCell>
+                <TableCell>{assignment.personName}</TableCell>
+                <TableCell>{assignment.choreName}</TableCell>
+                <TableCell>
+                  <Currency value={assignment.choreReward} />
+                </TableCell>
+              </TableRow>
+            );
+          }}
+        </TableBody>
+      </Table>
+
+      <CustomChoreCommission />
+    </>
   );
 }
 
@@ -271,8 +339,12 @@ function CustomChoreCommission() {
   }, [choreId]);
 
   return (
-    <ValidatedForm method="post" validator={commissionValidator}>
-      <div className="flex gap-2 items-center">
+    <ValidatedForm
+      method="post"
+      validator={commissionValidator}
+      className="mt-4"
+    >
+      <div className="flex flex-col sm:flex-row gap-2 items-center">
         <input type="hidden" name="action" value="customChore" />
         <input type="hidden" name="personId" value={personId} />
         <input type="hidden" name="choreId" value={choreId} />

@@ -1,4 +1,20 @@
-import { Tab, Tabs } from "@heroui/react";
+import {
+  Bars3BottomLeftIcon,
+  BriefcaseIcon,
+  ClipboardDocumentCheckIcon,
+  CursorArrowRaysIcon,
+  UserGroupIcon,
+} from "@heroicons/react/24/outline";
+import {
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  Listbox,
+  ListboxItem,
+} from "@heroui/react";
+import { useState } from "react";
 import {
   type LoaderFunctionArgs,
   Outlet,
@@ -29,26 +45,86 @@ export default function Component({ loaderData }: Route.ComponentProps) {
   const params = useParams();
   const base = `/families/${params.familyId}`;
 
+  const [isOpen, setIsOpen] = useState(false);
+
+  const links = [
+    {
+      to: `${base}/people`,
+      label: "People",
+      Icon: UserGroupIcon,
+    },
+    {
+      to: `${base}/chores`,
+      label: "Chores",
+      Icon: BriefcaseIcon,
+    },
+    {
+      to: `${base}/assignments`,
+      label: "Assignments",
+      Icon: CursorArrowRaysIcon,
+    },
+    {
+      to: `${base}/chore-chart`,
+      label: "Chore Chart",
+      Icon: ClipboardDocumentCheckIcon,
+    },
+  ];
+
   return (
     <section className="p-4">
-      <h2 className="text-xl mb-2">{loaderData.family.name}</h2>
+      <Outlet
+        context={{
+          header: (
+            <>
+              <Button
+                isIconOnly
+                aria-label="Navigation"
+                color="primary"
+                variant="light"
+                onPress={() => setIsOpen((v) => !v)}
+              >
+                <Bars3BottomLeftIcon className="text-default-600 w-8" />
+              </Button>
 
-      <Tabs selectedKey={pathname} aria-label="Tabs" className="mb-4">
-        <Tab key={`${base}/people`} href={`${base}/people`} title="People" />
-        <Tab key={`${base}/chores`} href={`${base}/chores`} title="Chores" />
-        <Tab
-          key={`${base}/assignments`}
-          href={`${base}/assignments`}
-          title="Assignments"
-        />
-        <Tab
-          key={`${base}/chore-chart`}
-          href={`${base}/chore-chart`}
-          title="Chore Chart"
-        />
-      </Tabs>
-
-      <Outlet />
+              <Drawer
+                isOpen={isOpen}
+                size="xs"
+                onClose={() => setIsOpen(false)}
+                placement="left"
+              >
+                <DrawerContent>
+                  <DrawerHeader className="flex flex-col gap-1">
+                    {loaderData.family.name}
+                  </DrawerHeader>
+                  <DrawerBody>
+                    <Listbox
+                      variant="faded"
+                      items={links}
+                      aria-label="Family navigation"
+                    >
+                      {({ to, label, Icon }) => (
+                        <ListboxItem
+                          key={to}
+                          href={to}
+                          className={
+                            pathname === to
+                              ? "bg-blue-100 dark:bg-blue-900"
+                              : undefined
+                          }
+                          onPress={() => setIsOpen(false)}
+                          startContent={<Icon className="size-5" />}
+                        >
+                          {label}
+                        </ListboxItem>
+                      )}
+                    </Listbox>
+                  </DrawerBody>
+                </DrawerContent>
+              </Drawer>
+            </>
+          ),
+        }}
+      />
     </section>
   );
 }

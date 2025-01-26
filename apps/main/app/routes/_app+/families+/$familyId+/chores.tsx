@@ -8,13 +8,13 @@ import {
 } from "@heroui/react";
 import { validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
-import { data, useParams } from "react-router";
+import type { ReactNode } from "react";
+import { data, useOutletContext } from "react-router";
 import { z } from "zod";
 
 import type { Route } from "./+types/chores.js";
 
 import { requireUser } from "~/lib/authentication/authentication.server.js";
-import { useHints } from "~/lib/client-hints/client-hints.js";
 import {
   createChore,
   deleteChore,
@@ -137,15 +137,14 @@ export default function Component({ loaderData }: Route.ComponentProps) {
     hiddenFields: [],
     resource: { type: "Chore" },
   };
-  const { locale, timeZone } = useHints();
-  const params = useParams();
-  const familyId = params.familyId;
+  const { header } = useOutletContext<{ header: ReactNode }>();
 
   return (
     <Table
       aria-label="Table of chores"
       topContent={
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          {header}
           <ResourceModal form={form} />
         </div>
       }

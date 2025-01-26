@@ -203,7 +203,8 @@ export const commissions = pgTable(
     familyPersonChoreIndex: uniqueIndex().on(
       table.familyId,
       table.personId,
-      table.choreId
+      table.choreId,
+      table.date
     ),
   })
 );

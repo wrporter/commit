@@ -101,6 +101,6 @@ ALTER TABLE "people" ADD CONSTRAINT "people_created_by_users_id_fk" FOREIGN KEY 
 ALTER TABLE "people" ADD CONSTRAINT "people_updated_by_users_id_fk" FOREIGN KEY ("updated_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "chore_assignments_person_id_chore_id_day_of_week_index" ON "chore_assignments" USING btree ("person_id","chore_id","day_of_week");--> statement-breakpoint
 CREATE INDEX "chores_family_id_id_index" ON "chores" USING btree ("family_id","id");--> statement-breakpoint
-CREATE UNIQUE INDEX "commissions_family_id_person_id_chore_id_index" ON "commissions" USING btree ("family_id","person_id","chore_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "commissions_family_id_person_id_chore_id_date_index" ON "commissions" USING btree ("family_id","person_id","chore_id","date");--> statement-breakpoint
 CREATE INDEX "people_family_id_id_index" ON "people" USING btree ("family_id","id");--> statement-breakpoint
 CREATE UNIQUE INDEX "users_email_index" ON "users" USING btree ("email");

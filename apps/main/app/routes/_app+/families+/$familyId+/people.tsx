@@ -10,7 +10,8 @@ import {
 import { validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
 import Decimal from "decimal.js";
-import { data, useFetcher, useParams } from "react-router";
+import type { ReactNode } from "react";
+import { data, useFetcher, useOutletContext, useParams } from "react-router";
 import { z } from "zod";
 
 import type { Route } from "./+types/people.js";
@@ -133,17 +134,14 @@ export default function Component({ loaderData }: Route.ComponentProps) {
   const { locale, timeZone } = useHints();
   const payFetcher = useFetcher();
   const { familyId } = useParams();
+  const { header } = useOutletContext<{ header: ReactNode }>();
 
   return (
     <Table
       aria-label="Table of people"
-      isHeaderSticky
-      bottomContentPlacement="outside"
-      classNames={{
-        wrapper: "max-h-[382px]",
-      }}
       topContent={
-        <div className="flex justify-end">
+        <div className="flex justify-between items-center">
+          {header}
           <ResourceModal form={form} />
         </div>
       }
@@ -151,8 +149,8 @@ export default function Component({ loaderData }: Route.ComponentProps) {
     >
       <TableHeader>
         <TableColumn>Name</TableColumn>
-        <TableColumn>Age</TableColumn>
-        <TableColumn>Birthday</TableColumn>
+        <TableColumn className="hidden sm:table-cell">Age</TableColumn>
+        <TableColumn className="hidden sm:table-cell">Birthday</TableColumn>
         <TableColumn>Amount Due</TableColumn>
         <TableColumn align="end">Actions</TableColumn>
       </TableHeader>
@@ -179,8 +177,10 @@ export default function Component({ loaderData }: Route.ComponentProps) {
           return (
             <TableRow key={person.id}>
               <TableCell>{person.name}</TableCell>
-              <TableCell>{getAge(person.birthday)}</TableCell>
-              <TableCell>
+              <TableCell className="hidden sm:table-cell">
+                {getAge(person.birthday)}
+              </TableCell>
+              <TableCell className="hidden sm:table-cell">
                 {formatDate(person.birthday, locale, timeZone)}
               </TableCell>
               <TableCell>

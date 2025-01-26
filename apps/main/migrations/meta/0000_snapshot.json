@@ -1,5 +1,5 @@
 {
-  "id": "667b3b22-9585-4482-ac3d-fe619fa67173",
+  "id": "06a938b9-b475-41d6-b3f4-fd27d4a7f2e2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -384,8 +384,8 @@
         }
       },
       "indexes": {
-        "commissions_family_id_person_id_chore_id_index": {
-          "name": "commissions_family_id_person_id_chore_id_index",
+        "commissions_family_id_person_id_chore_id_date_index": {
+          "name": "commissions_family_id_person_id_chore_id_date_index",
           "columns": [
             {
               "expression": "family_id",
@@ -401,6 +401,12 @@
             },
             {
               "expression": "chore_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "date",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
