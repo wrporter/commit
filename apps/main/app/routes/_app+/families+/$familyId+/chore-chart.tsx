@@ -7,6 +7,7 @@ import {
   CardBody,
   Checkbox,
   Chip,
+  DatePicker,
   Table,
   TableBody,
   TableCell,
@@ -14,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
+import { parseDate } from "@internationalized/date";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import Decimal from "decimal.js";
 import { type ReactNode, useEffect, useState } from "react";
@@ -23,6 +25,7 @@ import {
   useFetcher,
   useLoaderData,
   useOutletContext,
+  useSearchParams,
 } from "react-router";
 import { tv } from "tailwind-variants";
 
@@ -73,14 +76,17 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     );
   }
 
+  const url = new URL(request.url);
+  const searchParamDate = url.searchParams.get("date");
+  const date = searchParamDate
+    ? parseDate(searchParamDate)
+    : toCalendarDate(new Date().toString());
+
   const [people, chores, assignments, commissions] = await Promise.all([
     getPeople(user.id, familyId),
     getChores(familyId),
     getAssignments(familyId),
-    getCommissionsForDate(
-      familyId,
-      toCalendarDate(new Date().toString()).toString()
-    ),
+    getCommissionsForDate(familyId, date.toString()),
   ]);
   return { people, chores, assignments, commissions };
 };
@@ -139,8 +145,16 @@ const rowVariants = tv({
 });
 
 export default function Component({ loaderData }: Route.ComponentProps) {
-  const { locale } = useHints();
-  const today = new Date().toLocaleString(locale, {
+  const { locale, timeZone } = useHints();
+
+  const { header } = useOutletContext<{ header: ReactNode }>();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParamDate = searchParams.get("date");
+  const date = searchParamDate
+    ? parseDate(searchParamDate)
+    : toCalendarDate(new Date().toString());
+
+  const today = date.toDate(timeZone).toLocaleString(locale, {
     weekday: "long",
   }) as (typeof DAYS)[number];
   const dayOfWeek = DAYS.indexOf(today);
@@ -178,7 +192,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
         personId: assignment.personId,
         ...(assignment.choreId && { choreId: assignment.choreId }),
         ...(assignment.choreName && { choreName: assignment.choreName }),
-        date: toCalendarDate(new Date().toString()).toString(),
+        date: date.toString(),
         baseAmount: assignment.choreReward,
       };
 
@@ -195,13 +209,29 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       fetcher.submit(data, { method: "post" });
     };
 
-  const { header } = useOutletContext<{ header: ReactNode }>();
-
   return (
     <>
-      {header}
+      <div className="flex justify-between items-center">
+        {header}
+        <DatePicker
+          className="max-w-40"
+          size="sm"
+          labelPlacement="outside-left"
+          label="Date"
+          // @ts-ignore
+          value={date}
+          // @ts-ignore
+          onChange={(date) => setSearchParams({ date })}
+        />
+      </div>
 
       <div className="sm:hidden flex flex-col gap-2 mt-4">
+        {chores.length === 0 && (
+          <div className="flex justify-center items-center text-default-600 h-20 border-1 border-default-300 rounded">
+            No chores today
+          </div>
+        )}
+
         {chores.map((assignment) => {
           const commission = loaderData.commissions.find(
             ({ personId, choreId }) =>
@@ -234,11 +264,6 @@ export default function Component({ loaderData }: Route.ComponentProps) {
 
                 <div className="flex justify-between">
                   <div className="flex gap-2">
-                    {assignment.type === "commission" && (
-                      <Chip size="sm" color="primary" variant="bordered">
-                        Bonus
-                      </Chip>
-                    )}
                     {isPaid && (
                       <Chip
                         size="sm"
@@ -247,6 +272,12 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                         startContent={<CheckIcon width={12} />}
                       >
                         Paid
+                      </Chip>
+                    )}
+
+                    {assignment.type === "commission" && (
+                      <Chip size="sm" color="primary" variant="bordered">
+                        Bonus
                       </Chip>
                     )}
                   </div>
