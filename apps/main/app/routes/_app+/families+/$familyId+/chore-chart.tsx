@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
-import { parseDate } from "@internationalized/date";
+import { getDayOfWeek, parseDate, today } from "@internationalized/date";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import Decimal from "decimal.js";
 import { type ReactNode, useEffect, useState } from "react";
@@ -32,7 +32,7 @@ import { tv } from "tailwind-variants";
 import type { Route } from "./+types/chore-chart.js";
 
 import { requireUser } from "~/lib/authentication/authentication.server.js";
-import { useHints } from "~/lib/client-hints/client-hints.js";
+import { getHints, useHints } from "~/lib/client-hints/client-hints.js";
 import { getAssignments } from "~/lib/repository/assignment.server.js";
 import { getChores } from "~/lib/repository/chore.server.js";
 import {
@@ -80,7 +80,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const searchParamDate = url.searchParams.get("date");
   const date = searchParamDate
     ? parseDate(searchParamDate)
-    : toCalendarDate(new Date().toString());
+    : today(getHints(request).timeZone);
 
   const [people, chores, assignments, commissions] = await Promise.all([
     getPeople(user.id, familyId),
@@ -146,18 +146,12 @@ const rowVariants = tv({
 
 export default function Component({ loaderData }: Route.ComponentProps) {
   const { locale, timeZone } = useHints();
-
   const { header } = useOutletContext<{ header: ReactNode }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const searchParamDate = searchParams.get("date");
-  const date = searchParamDate
-    ? parseDate(searchParamDate)
-    : toCalendarDate(new Date().toString());
 
-  const today = date.toDate(timeZone).toLocaleString(locale, {
-    weekday: "long",
-  }) as (typeof DAYS)[number];
-  const dayOfWeek = DAYS.indexOf(today);
+  const searchParamDate = searchParams.get("date");
+  const date = searchParamDate ? parseDate(searchParamDate) : today(timeZone);
+  const dayOfWeek = getDayOfWeek(date, locale, "mon");
 
   const assignmentsForToday = loaderData.assignments.filter(
     (assignment) => assignment.dayOfWeek === dayOfWeek
@@ -212,7 +206,11 @@ export default function Component({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="flex justify-between items-center">
-        {header}
+        <div className="flex items-center gap-2">
+          {header}
+          <div className="text-lg">{DAYS[dayOfWeek]}</div>
+        </div>
+
         <DatePicker
           className="max-w-40"
           size="sm"

@@ -8,10 +8,9 @@
   - Consistency in completing chores for each child.
 - [ ] Ask AI to generate an initial chore chart for children based on their age.
 - [ ] Add ability to export and import a family, and potentially more granular (people, chores, assignments, etc.).
-- [ ] Allow parents to go in and update chores.
 - [ ] Recognize child voice via Google Home/Alexa and allow them to complete their chores.
 - [ ] Add dark mode.
-- [ ] Allow users to select a date in the past or future in the chore chart to see what chores are on that day.
+- [x] Allow users to select a date in the past or future in the chore chart to see what chores are on that day.
 - [ ] Add ability to share a family or chore chart (view only?) with other users.
 - [x] Add mobile responsive support.
 

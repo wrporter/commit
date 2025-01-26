@@ -14,7 +14,7 @@ import type { Route } from "./+types/root.js";
 import stylesheet from "./tailwind.css?url";
 
 import { getUser } from "~/lib/authentication/authentication.server.js";
-import { getHints } from "~/lib/client-hints/client-hints.js";
+import { ClientHintCheck, getHints } from "~/lib/client-hints/client-hints.js";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -49,6 +49,7 @@ export function Layout({ children }: PropsWithChildren) {
   return (
     <html lang="en" className="h-full">
       <head>
+        <ClientHintCheck />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
