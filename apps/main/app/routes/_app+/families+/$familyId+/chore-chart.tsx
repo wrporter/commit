@@ -15,7 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
-import { getDayOfWeek, parseDate, today } from "@internationalized/date";
+import {
+  CalendarDate,
+  getDayOfWeek,
+  parseDate,
+  today,
+} from "@internationalized/date";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import Decimal from "decimal.js";
 import { type ReactNode, useEffect, useState } from "react";
@@ -45,7 +50,6 @@ import { DAYS } from "~/lib/repository/DAYS.js";
 import { getFamily } from "~/lib/repository/family.server.js";
 import { getPeople } from "~/lib/repository/person.server.js";
 import { Currency } from "~/lib/ui/currency.js";
-import { toCalendarDate } from "~/lib/ui/date.format.js";
 import { FormInput } from "~/lib/ui/form-input.js";
 import { FormErrors } from "~/lib/ui/resource-actions.js";
 import { commissionValidator } from "~/lib/validators.js";
@@ -180,28 +184,31 @@ export default function Component({ loaderData }: Route.ComponentProps) {
   ];
 
   const fetcher = useFetcher();
-  const handleSelect =
-    (assignment: (typeof chores)[0], commission?: Commission) => () => {
-      const data: Record<string, string> = {
-        personId: assignment.personId,
-        ...(assignment.choreId && { choreId: assignment.choreId }),
-        ...(assignment.choreName && { choreName: assignment.choreName }),
-        date: date.toString(),
-        baseAmount: assignment.choreReward,
-      };
-
-      if (commission) {
-        data.commissionId = commission.id;
-
-        // Do not allow already paid chores/commissions to be deselected.
-        if (new Decimal(commission?.balance).isZero()) {
-          return;
-        }
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      fetcher.submit(data, { method: "post" });
+  const handleSelect = (
+    assignment: (typeof chores)[0],
+    date: CalendarDate,
+    commission?: Commission
+  ) => {
+    const data: Record<string, string> = {
+      personId: assignment.personId,
+      ...(assignment.choreId && { choreId: assignment.choreId }),
+      ...(assignment.choreName && { choreName: assignment.choreName }),
+      date: date.toString(),
+      baseAmount: assignment.choreReward,
     };
+
+    if (commission) {
+      data.commissionId = commission.id;
+
+      // Do not allow already paid chores/commissions to be deselected.
+      if (new Decimal(commission?.balance).isZero()) {
+        return;
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    fetcher.submit(data, { method: "post" });
+  };
 
   return (
     <>
@@ -246,14 +253,16 @@ export default function Component({ loaderData }: Route.ComponentProps) {
               isHoverable={!isPaid}
               isPressable={!isPaid}
               isDisabled={isPaid}
-              onPress={handleSelect(assignment, commission)}
+              onPress={() => handleSelect(assignment, date, commission)}
             >
               <CardBody className="flex gap-2">
                 <div className="flex justify-between">
                   <div className="flex">
                     <Checkbox
                       isSelected={isCompleted}
-                      onValueChange={handleSelect(assignment, commission)}
+                      onValueChange={() =>
+                        handleSelect(assignment, date, commission)
+                      }
                     />
                     <div className="font-bold">{assignment.personName}</div>
                   </div>
@@ -311,7 +320,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
             return (
               <TableRow
                 key={assignment.id}
-                onClick={handleSelect(assignment, commission)}
+                onClick={() => handleSelect(assignment, date, commission)}
                 className={rowVariants({
                   disabled: isPaid,
                   selected: isCompleted,
@@ -320,7 +329,9 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                 <TableCell className="flex items-center gap-1">
                   <Checkbox
                     isSelected={isCompleted}
-                    onValueChange={handleSelect(assignment, commission)}
+                    onValueChange={() =>
+                      handleSelect(assignment, date, commission)
+                    }
                   />
                   {assignment.type === "commission" && (
                     <Chip size="sm" color="primary" variant="bordered">
@@ -349,12 +360,12 @@ export default function Component({ loaderData }: Route.ComponentProps) {
         </TableBody>
       </Table>
 
-      <CustomChoreCommission />
+      <CustomChoreCommission date={date} />
     </>
   );
 }
 
-function CustomChoreCommission() {
+function CustomChoreCommission({ date }: { date: CalendarDate }) {
   const loaderData = useLoaderData<Route.ComponentProps["loaderData"]>();
   const [personId, setPersonId] = useState("");
   const [choreId, setChoreId] = useState("");
@@ -379,11 +390,7 @@ function CustomChoreCommission() {
         <input type="hidden" name="choreId" value={choreId} />
 
         {/* TODO: Support adjustments in the past. */}
-        <input
-          type="hidden"
-          name="date"
-          value={toCalendarDate(new Date().toString()).toString()}
-        />
+        <input type="hidden" name="date" value={date.toString()} />
 
         <Autocomplete
           name="personName"
