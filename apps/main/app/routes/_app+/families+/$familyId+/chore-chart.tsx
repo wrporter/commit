@@ -26,7 +26,6 @@ import Decimal from "decimal.js";
 import { type ReactNode, useEffect, useState } from "react";
 import {
   type LoaderFunctionArgs,
-  data,
   useFetcher,
   useLoaderData,
   useOutletContext,
@@ -37,6 +36,7 @@ import { tv } from "tailwind-variants";
 import type { Route } from "./+types/chore-chart.js";
 
 import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { requireFamilyAccess } from "~/lib/authorization/require-family.js";
 import { getHints, useHints } from "~/lib/client-hints/client-hints.js";
 import { getAssignments } from "~/lib/repository/assignment.server.js";
 import { getChores } from "~/lib/repository/chore.server.js";
@@ -47,38 +47,15 @@ import {
   getCommissionsForDate,
 } from "~/lib/repository/commissions.server.js";
 import { DAYS } from "~/lib/repository/DAYS.js";
-import { getFamily } from "~/lib/repository/family.server.js";
 import { getPeople } from "~/lib/repository/person.server.js";
 import { Currency } from "~/lib/ui/currency.js";
 import { FormInput } from "~/lib/ui/form-input.js";
 import { FormErrors } from "~/lib/ui/resource-actions.js";
 import { commissionValidator } from "~/lib/validators.js";
 
-const defaultValues = {
-  assignments: [],
-  people: [],
-  chores: [],
-  commissions: [],
-};
-
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
-  const familyId = params.familyId;
-
-  if (!familyId) {
-    return data(
-      { errorMessage: `Family does not exist`, ...defaultValues },
-      404
-    );
-  }
-
-  const family = await getFamily(user.id, familyId);
-  if (!family) {
-    return data(
-      { errorMessage: `Family [${familyId}] does not exist`, ...defaultValues },
-      404
-    );
-  }
+  const family = await requireFamilyAccess(user, params.familyId);
 
   const url = new URL(request.url);
   const searchParamDate = url.searchParams.get("date");
@@ -87,26 +64,18 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     : today(getHints(request).timeZone);
 
   const [people, chores, assignments, commissions] = await Promise.all([
-    getPeople(user.id, familyId),
-    getChores(familyId),
-    getAssignments(familyId),
-    getCommissionsForDate(familyId, date.toString()),
+    getPeople(family.id),
+    getChores(family.id),
+    getAssignments(family.id),
+    getCommissionsForDate(family.id, date.toString()),
   ]);
   return { people, chores, assignments, commissions };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const user = await requireUser(request);
-  const familyId = params.familyId;
+  const family = await requireFamilyAccess(user, params.familyId);
   const formData = await request.clone().formData();
-
-  if (!familyId) {
-    return data({ errorMessage: `Family does not exist` }, 404);
-  }
-  const family = await getFamily(user.id, familyId);
-  if (!family) {
-    return data({ errorMessage: `Family [${familyId}] does not exist` }, 404);
-  }
 
   const result = await commissionValidator.validate(await request.formData());
   if (result.error) {
@@ -114,7 +83,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   }
 
   if (result.data.commissionId) {
-    return await deleteCommission(familyId, result.data.commissionId);
+    return await deleteCommission(family.id, result.data.commissionId);
   }
 
   if (formData.get("action") === "customChore") {

@@ -38,18 +38,7 @@ export async function getPerson(
     );
 }
 
-export async function getPeople(userId: string, familyId: string) {
-  const users = await db
-    .select()
-    .from(familyUsers)
-    .where(
-      and(eq(familyUsers.familyId, familyId), eq(familyUsers.userId, userId))
-    );
-
-  if (users.length === 0) {
-    return [];
-  }
-
+export async function getPeople(familyId: string) {
   return db.select().from(people).where(eq(people.familyId, familyId));
 }
 

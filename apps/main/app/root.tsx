@@ -15,6 +15,7 @@ import stylesheet from "./tailwind.css?url";
 
 import { getUser } from "~/lib/authentication/authentication.server.js";
 import { ClientHintCheck, getHints } from "~/lib/client-hints/client-hints.js";
+import { ErrorState } from "~/lib/ui/error-state.js";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -78,11 +79,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
+  let status: "empty" | "error" = "error";
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    status = error.status === 404 ? "empty" : "error";
+    message = status === "empty" ? "404" : "Error";
     details =
-      error.status === 404
+      status === "empty"
         ? "The requested page could not be found."
         : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
@@ -91,14 +94,14 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main>
+      <ErrorState status={status} title={message} description={details}>
+        {stack && (
+          <pre className="w-full p-4 overflow-x-auto">
+            <code>{stack}</code>
+          </pre>
+        )}
+      </ErrorState>
     </main>
   );
 }

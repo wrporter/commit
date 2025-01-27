@@ -18,7 +18,7 @@ import { useState } from "react";
 import {
   type LoaderFunctionArgs,
   Outlet,
-  data,
+  isRouteErrorResponse,
   useLocation,
   useParams,
 } from "react-router";
@@ -26,17 +26,12 @@ import {
 import type { Route } from "./+types/_layout.js";
 
 import { requireUser } from "~/lib/authentication/authentication.server.js";
-import { type Family, getFamily } from "~/lib/repository/family.server.js";
+import { requireFamilyAccess } from "~/lib/authorization/require-family.js";
+import { ErrorState } from "~/lib/ui/error-state.js";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
-  if (!params.familyId) {
-    return data(
-      { errorMessage: `Family does not exist`, family: {} as Family },
-      404
-    );
-  }
-  const family = await getFamily(user.id, params.familyId);
+  const family = await requireFamilyAccess(user, params.familyId);
   return { family };
 };
 
@@ -127,4 +122,31 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       />
     </section>
   );
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  if (isRouteErrorResponse(error)) {
+    return (
+      <ErrorState
+        title="Family not found"
+        description="The family you are looking for either does not exist or you do not have permission to view it."
+      />
+    );
+  } else if (error instanceof Error) {
+    return (
+      <ErrorState
+        status="error"
+        title="Failed to load family"
+        description="We apologize for the inconvenience. Please try again later."
+      />
+    );
+  } else {
+    return (
+      <ErrorState
+        status="error"
+        title="Encountered unknown error"
+        description="We apologize for the inconvenience. Please try again later."
+      />
+    );
+  }
 }

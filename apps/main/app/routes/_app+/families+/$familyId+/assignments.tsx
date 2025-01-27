@@ -16,6 +16,7 @@ import { z } from "zod";
 import type { Route } from "./+types/assignments.js";
 
 import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { requireFamilyAccess } from "~/lib/authorization/require-family.js";
 import {
   createAssignment,
   deleteAssignment,
@@ -25,7 +26,6 @@ import {
 } from "~/lib/repository/assignment.server.js";
 import { type Chore, getChores } from "~/lib/repository/chore.server.js";
 import { DAYS } from "~/lib/repository/DAYS.js";
-import { getFamily } from "~/lib/repository/family.server.js";
 import { type Person, getPeople } from "~/lib/repository/person.server.js";
 import { Currency } from "~/lib/ui/currency.js";
 import {
@@ -36,54 +36,21 @@ import {
 import { ResourceAutocomplete } from "~/lib/ui/resource-autocomplete.js";
 import { assignmentValidator } from "~/lib/validators.js";
 
-const defaultValues = {
-  assignments: [],
-  people: [],
-  chores: [],
-};
-
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const user = await requireUser(request);
-  const familyId = params.familyId;
-
-  if (!familyId) {
-    return data(
-      { errorMessage: `Family does not exist`, ...defaultValues },
-      404
-    );
-  }
-
-  const family = await getFamily(user.id, familyId);
-  if (!family) {
-    return data(
-      { errorMessage: `Family [${familyId}] does not exist`, ...defaultValues },
-      404
-    );
-  }
+  const family = await requireFamilyAccess(user, params.familyId);
 
   const [people, chores, assignments] = await Promise.all([
-    getPeople(user.id, familyId),
-    getChores(familyId),
-    getAssignments(familyId),
+    getPeople(family.id),
+    getChores(family.id),
+    getAssignments(family.id),
   ]);
   return { people, chores, assignments };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const user = await requireUser(request);
-  const familyId = params.familyId;
-
-  if (!familyId) {
-    return data(
-      { errorMessage: `Family does not exist`, ...defaultValues },
-      404
-    );
-  }
-
-  const family = await getFamily(user.id, familyId);
-  if (!family) {
-    return data({ errorMessage: `Family [${familyId}] does not exist` }, 404);
-  }
+  const family = await requireFamilyAccess(user, params.familyId);
 
   if (request.method === "DELETE") {
     const result = await withZod(
@@ -96,15 +63,15 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     }
 
     const { assignmentId } = result.data;
-    const assignment = await getAssignment(familyId, assignmentId);
+    const assignment = await getAssignment(family.id, assignmentId);
     if (!assignment) {
-      return data(
+      throw data(
         { errorMessage: `Assignment [${assignmentId}] does not exist` },
         404
       );
     }
 
-    return deleteAssignment(familyId, assignmentId);
+    return deleteAssignment(family.id, assignmentId);
   }
 
   const result = await assignmentValidator.validate(await request.formData());

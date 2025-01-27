@@ -17,9 +17,9 @@ import { z } from "zod";
 import type { Route } from "./+types/people.js";
 
 import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { requireFamilyAccess } from "~/lib/authorization/require-family.js";
 import { useHints } from "~/lib/client-hints/client-hints.js";
 import { getCommissions } from "~/lib/repository/commissions.server.js";
-import { getFamily } from "~/lib/repository/family.server.js";
 import {
   createPerson,
   deletePerson,
@@ -39,42 +39,16 @@ import { personValidator } from "~/lib/validators.js";
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const user = await requireUser(request);
-  const familyId = params.familyId;
+  const family = await requireFamilyAccess(user, params.familyId);
 
-  if (!familyId) {
-    return data(
-      { errorMessage: `Family does not exist`, people: [], commissions: [] },
-      404
-    );
-  }
-  const family = await getFamily(user.id, familyId);
-  if (!family) {
-    return data(
-      {
-        errorMessage: `Family [${familyId}] does not exist`,
-        people: [],
-        commissions: [],
-      },
-      404
-    );
-  }
-
-  const people = await getPeople(user.id, familyId);
-  const commissions = await getCommissions(familyId);
+  const people = await getPeople(family.id);
+  const commissions = await getCommissions(family.id);
   return { people, commissions };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const user = await requireUser(request);
-  const familyId = params.familyId;
-
-  if (!familyId) {
-    return data({ errorMessage: `Family does not exist` }, 404);
-  }
-  const family = await getFamily(user.id, familyId);
-  if (!family) {
-    return data({ errorMessage: `Family [${familyId}] does not exist` }, 404);
-  }
+  const family = await requireFamilyAccess(user, params.familyId);
 
   if (request.method === "DELETE") {
     const result = await withZod(
@@ -85,12 +59,12 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     }
 
     const personId = result.data.personId;
-    const person = await getPerson(user.id, familyId, personId);
+    const person = await getPerson(user.id, family.id, personId);
     if (!person) {
-      return data({ errorMessage: `Person [${personId}] does not exist` }, 404);
+      throw data({ errorMessage: `Person [${personId}] does not exist` }, 404);
     }
 
-    return deletePerson(familyId, personId);
+    return deletePerson(family.id, personId);
   }
 
   const result = await personValidator.validate(await request.formData());

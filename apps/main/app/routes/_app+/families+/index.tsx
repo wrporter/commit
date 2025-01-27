@@ -9,22 +9,18 @@ import {
 } from "@heroui/react";
 import { validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
-import {
-  type ActionFunctionArgs,
-  type LoaderFunctionArgs,
-  data,
-} from "react-router";
+import { type ActionFunctionArgs, type LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
 
 import type { Route } from "./+types/index.js";
 
 import { requireUser } from "~/lib/authentication/authentication.server.js";
+import { requireFamilyAccess } from "~/lib/authorization/require-family.js";
 import { useHints } from "~/lib/client-hints/client-hints.js";
 import {
   createFamily,
   deleteFamily,
   getFamilies,
-  getFamily,
   updateFamily,
 } from "~/lib/repository/family.server.js";
 import { formatDateTime } from "~/lib/ui/date.format.js";
@@ -53,13 +49,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return validationError(result.error, result.submittedData);
     }
 
-    const familyId = result.data.familyId;
-    const family = await getFamily(familyId, user.id);
-    if (!family) {
-      return data({ errorMessage: `Family [${familyId}] does not exist` }, 404);
-    }
+    const family = await requireFamilyAccess(user, result.data.familyId);
 
-    return deleteFamily(familyId);
+    return deleteFamily(family.id);
   }
 
   const result = await familyValidator.validate(await request.formData());
