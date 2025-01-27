@@ -196,6 +196,20 @@ export default function Component({ loaderData }: Route.ComponentProps) {
           value={date}
           // @ts-ignore
           onChange={(date) => setSearchParams({ date })}
+          CalendarBottomContent={
+            <div className="flex p-1 justify-center items-center">
+              <Button
+                size="sm"
+                color="primary"
+                variant="light"
+                onPress={() =>
+                  setSearchParams({ date: today(timeZone).toString() })
+                }
+              >
+                Today
+              </Button>
+            </div>
+          }
         />
       </div>
 
@@ -357,8 +371,6 @@ function CustomChoreCommission({ date }: { date: CalendarDate }) {
         <input type="hidden" name="action" value="customChore" />
         <input type="hidden" name="personId" value={personId} />
         <input type="hidden" name="choreId" value={choreId} />
-
-        {/* TODO: Support adjustments in the past. */}
         <input type="hidden" name="date" value={date.toString()} />
 
         <Autocomplete
