@@ -1,5 +1,7 @@
 import { CheckIcon } from "@heroicons/react/24/outline";
 import {
+  Card,
+  CardBody,
   Chip,
   Table,
   TableBody,
@@ -88,6 +90,66 @@ export default function Component({ loaderData }: Route.ComponentProps) {
             There are no commissions
           </div>
         )}
+
+        {loaderData.commissions.map((commission) => {
+          const isBonus = !commission.assignmentId;
+          const isPaid = Boolean(commission?.paidAt);
+          const person = loaderData.people.find(
+            (person) => person.id === commission.personId
+          );
+
+          return (
+            <Card key={commission.id} className="w-full">
+              <CardBody className="flex gap-1">
+                <div className="flex justify-between">
+                  <div className="font-bold">{person?.name}</div>
+                  <Currency value={commission.finalAmount} />
+                </div>
+
+                <div>
+                  {isBonus && (
+                    <Chip
+                      size="sm"
+                      color="primary"
+                      variant="bordered"
+                      className="inline-flex mr-1"
+                    >
+                      Bonus
+                    </Chip>
+                  )}
+                  {commission.choreName}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-default-500">
+                    {formatDate(
+                      parseDate(commission.date).toDate(timeZone),
+                      locale,
+                      timeZone
+                    )}
+                  </div>
+
+                  <div>
+                    {isPaid ? (
+                      <Chip
+                        size="sm"
+                        color="success"
+                        variant="bordered"
+                        startContent={<CheckIcon width={12} />}
+                      >
+                        Paid
+                      </Chip>
+                    ) : (
+                      <Chip size="sm" color="warning" variant="dot">
+                        Unpaid
+                      </Chip>
+                    )}
+                  </div>
+                </div>
+              </CardBody>
+            </Card>
+          );
+        })}
       </div>
 
       <Table aria-label="Commissions" className="hidden sm:flex mt-4">
