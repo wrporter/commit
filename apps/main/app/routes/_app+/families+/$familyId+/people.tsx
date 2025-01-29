@@ -10,8 +10,7 @@ import {
 import { validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
 import Decimal from "decimal.js";
-import type { ReactNode } from "react";
-import { data, useFetcher, useOutletContext, useParams } from "react-router";
+import { data, useFetcher, useParams } from "react-router";
 import { z } from "zod";
 
 import type { Route } from "./+types/people.js";
@@ -108,14 +107,13 @@ export default function Component({ loaderData }: Route.ComponentProps) {
   const { locale, timeZone } = useHints();
   const payFetcher = useFetcher();
   const { familyId } = useParams();
-  const { header } = useOutletContext<{ header: ReactNode }>();
 
   return (
     <Table
       aria-label="Table of people"
       topContent={
         <div className="flex justify-between items-center">
-          {header}
+          <h2 className="text-xl">People</h2>
           <ResourceModal form={form} />
         </div>
       }

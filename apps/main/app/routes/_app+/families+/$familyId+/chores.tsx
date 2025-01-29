@@ -8,8 +8,7 @@ import {
 } from "@heroui/react";
 import { validationError } from "@rvf/react-router";
 import { withZod } from "@rvf/zod";
-import type { ReactNode } from "react";
-import { data, useOutletContext } from "react-router";
+import { data } from "react-router";
 import { z } from "zod";
 
 import type { Route } from "./+types/chores.js";
@@ -113,14 +112,13 @@ export default function Component({ loaderData }: Route.ComponentProps) {
     hiddenFields: [],
     resource: { type: "Chore" },
   };
-  const { header } = useOutletContext<{ header: ReactNode }>();
 
   return (
     <Table
       aria-label="Table of chores"
       topContent={
         <div className="flex justify-between items-center">
-          {header}
+          <h2 className="text-xl">Chores</h2>
           <ResourceModal form={form} />
         </div>
       }

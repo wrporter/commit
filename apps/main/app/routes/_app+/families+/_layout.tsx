@@ -1,20 +1,20 @@
 import {
-  Bars3BottomLeftIcon,
   BriefcaseIcon,
+  ChevronDownIcon,
   ClipboardDocumentCheckIcon,
   CursorArrowRaysIcon,
+  HomeIcon,
   UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import {
   Button,
-  Drawer,
-  DrawerBody,
-  DrawerContent,
-  DrawerHeader,
-  Listbox,
-  ListboxItem,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownSection,
+  DropdownTrigger,
+  NavbarContent,
 } from "@heroui/react";
-import { useState } from "react";
 import {
   type LoaderFunctionArgs,
   Outlet,
@@ -28,99 +28,102 @@ import type { Route } from "./+types/_layout.js";
 import { requireUser } from "~/lib/authentication/authentication.server.js";
 import { requireFamilyAccess } from "~/lib/authorization/require-family.js";
 import { ErrorState } from "~/lib/ui/error-state.js";
+import {
+  Header,
+  headerMenuItemIconClasses,
+  headerMenuItemVariants,
+} from "~/lib/ui/header.js";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   const family = await requireFamilyAccess(user, params.familyId);
   return { family };
 };
-
 export default function Component({ loaderData }: Route.ComponentProps) {
-  const { pathname } = useLocation();
+  const location = useLocation();
   const params = useParams();
   const base = `/families/${params.familyId}`;
 
-  const [isOpen, setIsOpen] = useState(false);
-
-  const links = [
+  const menuItems = [
     {
-      to: `${base}/people`,
+      href: `${base}/people`,
       label: "People",
       Icon: UserGroupIcon,
     },
     {
-      to: `${base}/chores`,
+      href: `${base}/chores`,
       label: "Chores",
       Icon: BriefcaseIcon,
     },
     {
-      to: `${base}/assignments`,
+      href: `${base}/assignments`,
       label: "Assignments",
       Icon: CursorArrowRaysIcon,
     },
     {
-      to: `${base}/chore-chart`,
+      href: `${base}/chore-chart`,
       label: "Chore Chart",
       Icon: ClipboardDocumentCheckIcon,
     },
   ];
 
   return (
-    <section className="p-4">
-      <Outlet
-        context={{
-          header: (
-            <>
+    <>
+      <Header>
+        <NavbarContent>
+          <Dropdown>
+            <DropdownTrigger>
               <Button
-                isIconOnly
                 aria-label="Navigation"
                 color="primary"
                 variant="light"
-                onPress={() => setIsOpen((v) => !v)}
+                size="sm"
+                disableRipple
+                endContent={<ChevronDownIcon className="size-4" />}
               >
-                <Bars3BottomLeftIcon className="text-default-600 w-8" />
+                {loaderData.family.name}
               </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Menu" variant="faded">
+              <DropdownSection showDivider>
+                <DropdownItem
+                  key="/home"
+                  href="/home"
+                  className={headerMenuItemVariants({
+                    isSelected: location.pathname === "/home",
+                  })}
+                  startContent={
+                    <HomeIcon className={headerMenuItemIconClasses} />
+                  }
+                >
+                  Home
+                </DropdownItem>
+              </DropdownSection>
+              <DropdownSection title="Family">
+                {menuItems.map(({ label, href, Icon }) => (
+                  <DropdownItem
+                    key={href}
+                    href={href}
+                    className={headerMenuItemVariants({
+                      isSelected: location.pathname === href,
+                    })}
+                    startContent={
+                      <Icon className={headerMenuItemIconClasses} />
+                    }
+                  >
+                    {label}
+                  </DropdownItem>
+                ))}
+              </DropdownSection>
+            </DropdownMenu>
+          </Dropdown>
+        </NavbarContent>
+      </Header>
 
-              <Drawer
-                isOpen={isOpen}
-                size="xs"
-                onClose={() => setIsOpen(false)}
-                placement="left"
-              >
-                <DrawerContent>
-                  <DrawerHeader className="flex flex-col gap-1">
-                    {loaderData.family.name}
-                  </DrawerHeader>
-                  <DrawerBody>
-                    <Listbox
-                      variant="faded"
-                      items={links}
-                      aria-label="Family navigation"
-                    >
-                      {({ to, label, Icon }) => (
-                        <ListboxItem
-                          key={to}
-                          href={to}
-                          className={
-                            pathname === to
-                              ? "bg-blue-100 dark:bg-blue-900"
-                              : undefined
-                          }
-                          onPress={() => setIsOpen(false)}
-                          startContent={<Icon className="size-5" />}
-                        >
-                          {label}
-                        </ListboxItem>
-                      )}
-                    </Listbox>
-                  </DrawerBody>
-                </DrawerContent>
-              </Drawer>
-            </>
-          ),
-        }}
-      />
-    </section>
+      <section className="p-4">
+        <Outlet />
+      </section>
+    </>
   );
 }
 

@@ -19,13 +19,13 @@ export function FormInput({ name, label, ...rest }: FormInputProps) {
 
   return (
     <Input
-      {...inputProps}
       value={value as string}
       label={label}
       autoComplete="off"
       data-1p-ignore
       isInvalid={Boolean(errorMessage)}
       errorMessage={errorMessage}
+      {...inputProps}
     />
   );
 }

@@ -12,7 +12,7 @@ import {
 } from "react-router";
 import { z } from "zod";
 
-import type { Route } from "./+types/_layout.js";
+import type { Route } from "./+types/login.js";
 
 import {
   AuthorizationError,
@@ -111,7 +111,12 @@ export default function Component({ actionData }: Route.ComponentProps) {
         >
           {(form) => (
             <>
-              <FormInput label="Email" name="email" type="email" />
+              <FormInput
+                label="Email"
+                name="email"
+                type="email"
+                data-1p-ignore={false}
+              />
 
               <Input
                 label="Password"

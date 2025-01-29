@@ -23,12 +23,11 @@ import {
 } from "@internationalized/date";
 import { ValidatedForm, validationError } from "@rvf/react-router";
 import Decimal from "decimal.js";
-import { type ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   type LoaderFunctionArgs,
   useFetcher,
   useLoaderData,
-  useOutletContext,
   useSearchParams,
 } from "react-router";
 import { tv } from "tailwind-variants";
@@ -119,7 +118,6 @@ const rowVariants = tv({
 
 export default function Component({ loaderData }: Route.ComponentProps) {
   const { locale, timeZone } = useHints();
-  const { header } = useOutletContext<{ header: ReactNode }>();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const searchParamDate = searchParams.get("date");
@@ -182,10 +180,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          {header}
-          <div className="text-lg">{DAYS[dayOfWeek]}</div>
-        </div>
+        <h2 className="text-lg">{DAYS[dayOfWeek]}</h2>
 
         <DatePicker
           className="max-w-40"

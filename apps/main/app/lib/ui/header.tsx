@@ -1,9 +1,6 @@
 import {
   ArrowLeftStartOnRectangleIcon,
-  Bars3BottomLeftIcon,
-  HomeIcon,
   UserCircleIcon,
-  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 import {
   Avatar,
@@ -18,76 +15,42 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  forwardRef,
 } from "@heroui/react";
-import React, { type ElementType } from "react";
-import {
-  NavLink,
-  Link as RemixLink,
-  useLocation,
-  useSubmit,
-} from "react-router";
-import { twMerge } from "tailwind-merge";
+import React, { type PropsWithChildren } from "react";
+import { Link as RemixLink, useLocation, useSubmit } from "react-router";
+import { tv } from "tailwind-variants";
 
 import { useOptionalUser } from "~/utils.js";
 
-const iconClasses = "w-5 h-5 text-slate-600";
+export const headerMenuItemIconClasses = "w-5 h-5 text-slate-600";
 
-export function Header() {
+export const headerMenuItemVariants = tv({
+  variants: {
+    isSelected: {
+      true: "bg-blue-100 dark:bg-blue-900",
+    },
+  },
+});
+
+export function Header({ children }: PropsWithChildren) {
   const user = useOptionalUser();
   const submit = useSubmit();
   const location = useLocation();
 
   return (
-    <Navbar isBordered maxWidth="full" classNames={{ wrapper: "px-2 sm:px-6" }}>
+    <Navbar
+      isBordered
+      maxWidth="full"
+      classNames={{ wrapper: "px-2 sm:px-6" }}
+      position="static"
+    >
       <NavbarBrand className="flex flex-grow-0 items-center justify-center">
         <Link as={RemixLink} to={user ? "/home" : "/"} className="w-8">
           <img src="/assets/logo-icon.svg" alt="Commit" />
         </Link>
       </NavbarBrand>
 
-      <NavbarContent>
-        {user && (
-          <Dropdown>
-            <DropdownTrigger>
-              <Button
-                isIconOnly
-                aria-label="Navigation"
-                color="primary"
-                variant="light"
-              >
-                <Bars3BottomLeftIcon className="text-default-600 w-8" />
-              </Button>
-            </DropdownTrigger>
-            <DropdownMenu aria-label="Menu" variant="faded">
-              <DropdownItem
-                key="home"
-                href="/home"
-                className={
-                  location.pathname === "/home"
-                    ? "bg-blue-100 dark:bg-blue-900"
-                    : undefined
-                }
-                startContent={<HomeIcon className={iconClasses} />}
-              >
-                Home
-              </DropdownItem>
-              <DropdownItem
-                key="families"
-                href="/families"
-                className={
-                  location.pathname === "/families"
-                    ? "bg-blue-100 dark:bg-blue-900"
-                    : undefined
-                }
-                startContent={<UserGroupIcon className={iconClasses} />}
-              >
-                Families
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        )}
-      </NavbarContent>
+      {children}
 
       <NavbarContent justify="end" className="gap-2">
         {user ? (
@@ -114,12 +77,12 @@ export function Header() {
                 <DropdownItem
                   key="profile"
                   href="/profile"
-                  className={
-                    location.pathname === "/profile"
-                      ? "bg-blue-100 dark:bg-blue-900"
-                      : undefined
+                  className={headerMenuItemVariants({
+                    isSelected: location.pathname === "/profile",
+                  })}
+                  startContent={
+                    <UserCircleIcon className={headerMenuItemIconClasses} />
                   }
-                  startContent={<UserCircleIcon className={iconClasses} />}
                 >
                   Profile
                 </DropdownItem>
@@ -136,7 +99,9 @@ export function Header() {
                   })
                 }
                 startContent={
-                  <ArrowLeftStartOnRectangleIcon className={iconClasses} />
+                  <ArrowLeftStartOnRectangleIcon
+                    className={headerMenuItemIconClasses}
+                  />
                 }
               >
                 Logout
@@ -166,32 +131,3 @@ export function Header() {
     </Navbar>
   );
 }
-
-export interface MenuLinkProps {
-  label: string;
-  to: string;
-  icon: ElementType;
-
-  [prop: string]: unknown;
-}
-
-export const MenuLink = forwardRef<"a", MenuLinkProps>(
-  ({ label, to, icon: Icon, ...rest }: MenuLinkProps, ref) => {
-    return (
-      <NavLink
-        ref={ref}
-        to={to}
-        className={({ isActive }) =>
-          twMerge(
-            "flex items-center py-2 px-4 text-gray-600 rounded-lg hover:bg-blue-100 active:bg-blue-200",
-            isActive ? "bg-slate-200" : ""
-          )
-        }
-        {...rest}
-      >
-        <Icon className="w-6 h-6" aria-hidden />
-        <span className="ml-3">{label}</span>
-      </NavLink>
-    );
-  }
-);
