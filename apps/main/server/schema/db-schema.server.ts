@@ -192,6 +192,10 @@ export const commissions = pgTable(
     choreName: varchar({ length: 40 }),
     baseAmount: numeric({ precision: 16, scale: 4 }).notNull(),
     rating: smallint().notNull().default(3),
+    // Is NULL for bonus chores
+    assignmentId: uuid().references(() => choreAssignments.id, {
+      onDelete: "restrict",
+    }),
     finalAmount: numeric({ precision: 16, scale: 4 }).notNull(),
     balance: numeric({ precision: 16, scale: 4 }).notNull().default("0"),
     date: date().notNull().defaultNow(),

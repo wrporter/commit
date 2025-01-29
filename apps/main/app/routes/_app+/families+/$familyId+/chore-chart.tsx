@@ -48,6 +48,7 @@ import {
 import { DAYS } from "~/lib/repository/DAYS.js";
 import { getPeople } from "~/lib/repository/person.server.js";
 import { Currency } from "~/lib/ui/currency.js";
+import { getAge } from "~/lib/ui/date.format.js";
 import { FormInput } from "~/lib/ui/form-input.js";
 import { commissionValidator } from "~/lib/validators.js";
 
@@ -87,6 +88,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   if (formData.get("action") === "customChore") {
     await createCommission({
       ...result.data,
+      assignmentId: null,
       familyId: params.familyId,
       rating: 3,
       baseAmount: result.data.baseAmount.toFixed(2),
@@ -95,6 +97,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   } else {
     return await createCommission({
       ...result.data,
+      assignmentId: params.assignmentId ?? null,
       familyId: params.familyId,
       rating: 3,
       baseAmount: result.data.baseAmount.toFixed(2),
@@ -126,13 +129,8 @@ export default function Component({ loaderData }: Route.ComponentProps) {
   const assignmentsForToday = loaderData.assignments.filter(
     (assignment) => assignment.dayOfWeek === dayOfWeek
   );
-  const customChores = loaderData.commissions
-    .filter(
-      (commission) =>
-        !assignmentsForToday.some(
-          (assignment) => commission.choreId === assignment.choreId
-        )
-    )
+  const bonusChores = loaderData.commissions
+    .filter((commission) => !commission.assignmentId)
     .map((commission) => ({
       ...commission,
       choreReward: commission.finalAmount,
@@ -143,11 +141,26 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       type: "assignment",
       ...assignment,
     })),
-    ...customChores.map((customChore) => ({
+    ...bonusChores.map((customChore) => ({
       type: "commission",
       ...customChore,
     })),
-  ];
+  ]
+    .map((chore) => ({
+      ...chore,
+      personAge: getAge(
+        loaderData.people.find((person) => person.id === chore.personId)
+          ?.birthday ?? date.toString()
+      ),
+    }))
+    .sort((a, b) => {
+      if (a.personAge === b.personAge) {
+        return 0;
+      } else if (a.personAge > b.personAge) {
+        return -1;
+      }
+      return 1;
+    });
 
   const fetcher = useFetcher();
   const handleSelect = (
@@ -157,6 +170,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
   ) => {
     const data: Record<string, string> = {
       personId: assignment.personId,
+      ...(assignment.id && { assignmentId: assignment.id }),
       ...(assignment.choreId && { choreId: assignment.choreId }),
       ...(assignment.choreName && { choreName: assignment.choreName }),
       date: date.toString(),
@@ -202,6 +216,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
             value={date}
             // @ts-ignore
             onChange={(date) => setSearchParams({ date })}
+            aria-label="Date"
           />
         </div>
       </div>

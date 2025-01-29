@@ -1,0 +1,2 @@
+ALTER TABLE "commissions" ADD COLUMN "assignment_id" uuid;--> statement-breakpoint
+ALTER TABLE "commissions" ADD CONSTRAINT "commissions_assignment_id_chore_assignments_id_fk" FOREIGN KEY ("assignment_id") REFERENCES "public"."chore_assignments"("id") ON DELETE restrict ON UPDATE no action;

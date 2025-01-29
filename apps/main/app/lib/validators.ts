@@ -59,6 +59,7 @@ export const commissionValidator = withZod(
   z.object({
     // TODO: Allow deleting and editing if there was a mistake for custom chores
     commissionId: z.string().optional(),
+    assignmentId: z.string().optional(),
     personId: z.string({ required_error: "Please select a person." }),
     choreId: z
       .string()

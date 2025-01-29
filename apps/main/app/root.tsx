@@ -54,7 +54,7 @@ export function Layout({ children }: PropsWithChildren) {
         <meta charSet="utf-8" />
         <meta
           name="viewport"
-          content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi"
+          content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height"
         />
         <Meta />
         <Links />

@@ -1,4 +1,5 @@
 import {
+  BanknotesIcon,
   BriefcaseIcon,
   ChevronDownIcon,
   ClipboardDocumentCheckIcon,
@@ -64,6 +65,11 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       href: `${base}/chore-chart`,
       label: "Chore Chart",
       Icon: ClipboardDocumentCheckIcon,
+    },
+    {
+      href: `${base}/commissions`,
+      label: "Commissions",
+      Icon: BanknotesIcon,
     },
   ];
 

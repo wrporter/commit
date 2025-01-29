@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns, sql } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, sql } from "drizzle-orm";
 
 import { db } from "#server/db.server.js";
 import {
@@ -13,6 +13,7 @@ export async function createCommission(
   commission: Pick<
     Commission,
     | "familyId"
+    | "assignmentId"
     | "personId"
     | "choreId"
     | "choreName"
@@ -46,7 +47,8 @@ export function getCommissions(familyId: string) {
   return db
     .select()
     .from(commissions)
-    .where(eq(commissions.familyId, familyId));
+    .where(eq(commissions.familyId, familyId))
+    .orderBy(desc(commissions.date), desc(commissions.personId));
 }
 
 export function deleteCommission(familyId: string, commissionId: string) {
