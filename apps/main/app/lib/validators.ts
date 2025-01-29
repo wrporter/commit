@@ -64,8 +64,11 @@ export const commissionValidator = withZod(
       .string()
       .optional()
       .transform((value) => (value ? value : null)),
-    choreName: z.string({ required_error: "Please provide a chore name." }),
-    date: z.string({ required_error: "Please provide a date." }),
+    choreName: z
+      .string({ required_error: "Please enter a chore name." })
+      .min(1, "Please enter a chore name.")
+      .max(40, "Please use no more than 40 characters."),
+    date: z.string({ required_error: "Please enter a date." }),
     baseAmount: DecimalSchema,
   })
 );

@@ -1,4 +1,4 @@
-import { CheckIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
   Autocomplete,
   AutocompleteItem,
@@ -49,7 +49,6 @@ import { DAYS } from "~/lib/repository/DAYS.js";
 import { getPeople } from "~/lib/repository/person.server.js";
 import { Currency } from "~/lib/ui/currency.js";
 import { FormInput } from "~/lib/ui/form-input.js";
-import { FormErrors } from "~/lib/ui/resource-actions.js";
 import { commissionValidator } from "~/lib/validators.js";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -182,30 +181,29 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       <div className="flex justify-between items-center">
         <h2 className="text-lg">{DAYS[dayOfWeek]}</h2>
 
-        <DatePicker
-          className="max-w-40"
-          size="sm"
-          labelPlacement="outside-left"
-          label="Date"
-          // @ts-ignore
-          value={date}
-          // @ts-ignore
-          onChange={(date) => setSearchParams({ date })}
-          CalendarBottomContent={
-            <div className="flex p-1 justify-center items-center">
-              <Button
-                size="sm"
-                color="primary"
-                variant="light"
-                onPress={() =>
-                  setSearchParams({ date: today(timeZone).toString() })
-                }
-              >
-                Today
-              </Button>
-            </div>
-          }
-        />
+        <div className="flex gap-2 justify-center items-center">
+          <Button
+            size="sm"
+            color="primary"
+            variant="light"
+            onPress={() => {
+              const newParams = new URLSearchParams(searchParams);
+              newParams.delete("date");
+              setSearchParams(newParams);
+            }}
+          >
+            Today
+          </Button>
+
+          <DatePicker
+            className="max-w-32"
+            size="sm"
+            // @ts-ignore
+            value={date}
+            // @ts-ignore
+            onChange={(date) => setSearchParams({ date })}
+          />
+        </div>
       </div>
 
       <div className="sm:hidden flex flex-col gap-2 mt-4">
@@ -233,8 +231,8 @@ export default function Component({ loaderData }: Route.ComponentProps) {
               isDisabled={isPaid}
               onPress={() => handleSelect(assignment, date, commission)}
             >
-              <CardBody className="flex gap-2">
-                <div className="flex justify-between">
+              <CardBody className="flex gap-1">
+                <div className="flex justify-between items-start">
                   <div className="flex">
                     <Checkbox
                       isSelected={isCompleted}
@@ -242,13 +240,11 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                         handleSelect(assignment, date, commission)
                       }
                     />
+
                     <div className="font-bold">{assignment.personName}</div>
                   </div>
-                  <div>{assignment.choreName}</div>
-                </div>
 
-                <div className="flex justify-between">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     {isPaid && (
                       <Chip
                         size="sm"
@@ -265,12 +261,12 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                         Bonus
                       </Chip>
                     )}
-                  </div>
 
-                  <div>
                     <Currency value={assignment.choreReward} />
                   </div>
                 </div>
+
+                <div>{assignment.choreName}</div>
               </CardBody>
             </Card>
           );
@@ -373,6 +369,8 @@ function CustomChoreCommission({ date }: { date: CalendarDate }) {
           label="Person"
           defaultItems={loaderData.people}
           onSelectionChange={(key) => setPersonId(key?.toString() ?? "")}
+          isRequired
+          required
         >
           {(person) => (
             <AutocompleteItem key={person.id}>{person.name}</AutocompleteItem>
@@ -385,6 +383,9 @@ function CustomChoreCommission({ date }: { date: CalendarDate }) {
           defaultItems={loaderData.chores}
           allowsCustomValue
           onSelectionChange={(key) => setChoreId(key?.toString() ?? "")}
+          isRequired
+          required
+          maxLength={40}
         >
           {(chore) => (
             <AutocompleteItem key={chore.id}>{chore.name}</AutocompleteItem>
@@ -397,6 +398,8 @@ function CustomChoreCommission({ date }: { date: CalendarDate }) {
           name="baseAmount"
           label="Reward"
           placeholder="1.50"
+          isRequired
+          required
           startContent={
             <div className="pointer-events-none flex items-center">
               <span className="text-default-500 text-small">$</span>
@@ -406,12 +409,17 @@ function CustomChoreCommission({ date }: { date: CalendarDate }) {
           onChange={(event) => setReward(event.target.value)}
         />
 
-        <Button type="submit" color="primary" variant="bordered">
-          Add
-        </Button>
+        <div>
+          <Button
+            type="submit"
+            color="primary"
+            variant="bordered"
+            startContent={<PlusIcon className="size-4" />}
+          >
+            Add Bonus Chore
+          </Button>
+        </div>
       </div>
-
-      <FormErrors />
     </ValidatedForm>
   );
 }

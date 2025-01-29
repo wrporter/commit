@@ -1,3 +1,4 @@
+import { PlusIcon } from "@heroicons/react/24/outline";
 import {
   Button,
   Table,
@@ -28,7 +29,6 @@ import { DAYS } from "~/lib/repository/DAYS.js";
 import { type Person, getPeople } from "~/lib/repository/person.server.js";
 import { Currency } from "~/lib/ui/currency.js";
 import {
-  FormErrors,
   ResourceActions,
   type ResourceFormPropagatedProps,
 } from "~/lib/ui/resource-actions.js";
@@ -169,11 +169,16 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                 />
               </div>
 
-              <Button type="submit" color="primary" variant="ghost">
-                Add
-              </Button>
-
-              <FormErrors />
+              <div>
+                <Button
+                  type="submit"
+                  color="primary"
+                  variant="bordered"
+                  startContent={<PlusIcon className="size-4" />}
+                >
+                  Add Chore
+                </Button>
+              </div>
             </ValidatedForm>
           }
         >

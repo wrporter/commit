@@ -231,9 +231,9 @@ export function ResourceModal({ form }: ResourceModalProps) {
       <Button
         color="primary"
         onPress={() => setOpen(true)}
-        startContent={<PlusIcon className="w-5" />}
+        startContent={<PlusIcon className="size-4" />}
       >
-        Create {form.resource.type}
+        Add {form.resource.type}
       </Button>
       <Modal isOpen={open} onOpenChange={setOpen} placement="center">
         <ModalContent>
