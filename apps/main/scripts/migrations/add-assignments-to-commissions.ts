@@ -3,6 +3,9 @@
  * A new column, assignment_id, has been added to commissions. This script populates all historical
  * commissions with an assignment_id when the chore_id and date from a commission match the day and
  * chore_id from an assignment.
+ *
+ * Usage: NODE_ENV=development npx tsx --env-file=.env
+ * scripts/migrations/add-assignments-to-commissions.ts
  */
 import { getDayOfWeek, parseDate } from "@internationalized/date";
 import { log } from "@wesp-up/express";
