@@ -1,8 +1,14 @@
-import { CheckIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, FunnelIcon } from "@heroicons/react/24/outline";
+import { FunnelIcon as FunnelIconSolid } from "@heroicons/react/24/solid";
 import {
+  Button,
   Card,
   CardBody,
   Chip,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   Table,
   TableBody,
   TableCell,
@@ -12,10 +18,12 @@ import {
 } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { validationError } from "@rvf/react-router";
-import { type LoaderFunctionArgs } from "react-router";
+import { eq } from "drizzle-orm";
+import { type LoaderFunctionArgs, useSearchParams } from "react-router";
 
 import type { Route } from "./+types/commissions.js";
 
+import { commissions } from "#server/schema/db-schema.server.js";
 import { requireUser } from "~/lib/authentication/authentication.server.js";
 import { requireFamilyAccess } from "~/lib/authorization/require-family.js";
 import { useHints } from "~/lib/client-hints/client-hints.js";
@@ -33,11 +41,18 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
   const family = await requireFamilyAccess(user, params.familyId);
 
-  const [people, commissions] = await Promise.all([
+  const url = new URL(request.url);
+  const personIdFilter = url.searchParams.get("personId");
+  const conditions = [];
+  if (personIdFilter) {
+    conditions.push(eq(commissions.personId, personIdFilter));
+  }
+
+  const [people, comms] = await Promise.all([
     getPeople(family.id),
-    getCommissions(family.id),
+    getCommissions(family.id, conditions),
   ]);
-  return { people, commissions };
+  return { people, commissions: comms };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
@@ -77,6 +92,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
 export default function Component({ loaderData }: Route.ComponentProps) {
   const { locale, timeZone } = useHints();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const personIdFilter = searchParams.get("personId");
 
   return (
     <>
@@ -154,7 +171,43 @@ export default function Component({ loaderData }: Route.ComponentProps) {
 
       <Table aria-label="Commissions" className="hidden sm:flex mt-4">
         <TableHeader>
-          <TableColumn>Person</TableColumn>
+          <TableColumn>
+            <div className="flex items-center gap-1">
+              <div>Person</div>
+
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly variant="light" size="sm">
+                    {personIdFilter ? (
+                      <FunnelIconSolid className="size-4 text-default-600" />
+                    ) : (
+                      <FunnelIcon className="size-4 text-default-600" />
+                    )}
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  aria-label="Filter person"
+                  selectedKeys={personIdFilter ? [personIdFilter] : []}
+                  selectionMode="single"
+                  variant="flat"
+                  onSelectionChange={(keys) => {
+                    const personId = [...keys]?.[0]?.toString();
+                    if (personId && personId !== personIdFilter) {
+                      setSearchParams({ personId });
+                    } else {
+                      const newParams = new URLSearchParams(searchParams);
+                      newParams.delete("personId");
+                      setSearchParams(newParams);
+                    }
+                  }}
+                >
+                  {loaderData.people.map((person) => (
+                    <DropdownItem key={person.id}>{person.name}</DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+          </TableColumn>
           <TableColumn>Reward</TableColumn>
           <TableColumn>Status</TableColumn>
           <TableColumn>Date</TableColumn>

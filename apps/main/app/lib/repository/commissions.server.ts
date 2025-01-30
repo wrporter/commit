@@ -1,4 +1,11 @@
-import { and, desc, eq, getTableColumns, sql } from "drizzle-orm";
+import {
+  type SQLWrapper,
+  and,
+  desc,
+  eq,
+  getTableColumns,
+  sql,
+} from "drizzle-orm";
 
 import { db } from "#server/db.server.js";
 import {
@@ -43,11 +50,14 @@ export function getCommissionsForDate(familyId: string, date: string) {
     .where(and(eq(commissions.familyId, familyId), eq(commissions.date, date)));
 }
 
-export function getCommissions(familyId: string) {
+export function getCommissions(
+  familyId: string,
+  conditions: SQLWrapper[] = []
+) {
   return db
     .select()
     .from(commissions)
-    .where(eq(commissions.familyId, familyId))
+    .where(and(eq(commissions.familyId, familyId), ...conditions))
     .orderBy(desc(commissions.date), desc(commissions.personId));
 }
 
