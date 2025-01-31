@@ -97,7 +97,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   } else {
     return await createCommission({
       ...result.data,
-      assignmentId: params.assignmentId ?? null,
+      assignmentId: result.data.assignmentId ?? null,
       familyId: params.familyId,
       rating: 3,
       baseAmount: result.data.baseAmount.toFixed(2),
@@ -181,7 +181,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       data.commissionId = commission.id;
 
       // Do not allow already paid chores/commissions to be deselected.
-      if (new Decimal(commission?.balance).isZero()) {
+      if (commission.paidAt) {
         return;
       }
     }
