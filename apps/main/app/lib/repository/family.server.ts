@@ -55,6 +55,15 @@ export async function updateFamily(
     .where(eq(families.id, family.id));
 }
 
+export async function updatePaymentCategories(
+  family: Pick<Family, "id" | "updatedBy" | "paymentCategories">
+) {
+  return db
+    .update(families)
+    .set({ ...family, updatedAt: new Date() })
+    .where(eq(families.id, family.id));
+}
+
 export async function deleteFamily(familyId: string) {
   return db.transaction(async (tx) => {
     await tx.delete(familyUsers).where(eq(familyUsers.familyId, familyId));

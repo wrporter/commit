@@ -121,7 +121,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
             {(family) => (
               <TableRow key={family.id}>
                 <TableCell>
-                  <Link href={`/families/${family.id}/people`} size="sm">
+                  <Link href={`/families/${family.id}`} size="sm">
                     {family.name}
                   </Link>
                 </TableCell>
@@ -131,7 +131,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                 <TableCell>
                   <ResourceActions
                     key={family.id}
-                    to={`/families/${family.id}/people`}
+                    to={`/families/${family.id}`}
                     form={{
                       ...form,
                       defaultValues: {

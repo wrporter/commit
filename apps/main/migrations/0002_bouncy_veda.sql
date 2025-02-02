@@ -1,0 +1,1 @@
+ALTER TABLE "families" ADD COLUMN "payment_categories" jsonb;

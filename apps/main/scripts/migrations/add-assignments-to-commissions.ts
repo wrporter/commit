@@ -44,7 +44,13 @@ await Promise.all(
       throw new Error(message);
     }
 
-    if (assignments.length === 1) {
+    if (commission.assignmentId) {
+      log.info({
+        message: "Commission already linked, skipping...",
+        commissionId: commission.id,
+        assignmentId: commission.assignmentId,
+      });
+    } else if (assignments.length === 1) {
       const [assignment] = assignments;
       await db
         .update(commissions)

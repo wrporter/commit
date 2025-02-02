@@ -3,6 +3,7 @@ import {
   BriefcaseIcon,
   ChevronDownIcon,
   ClipboardDocumentCheckIcon,
+  Cog6ToothIcon,
   CursorArrowRaysIcon,
   HomeIcon,
   UserGroupIcon,
@@ -43,31 +44,36 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 export default function Component({ loaderData }: Route.ComponentProps) {
   const location = useLocation();
   const params = useParams();
-  const base = `/families/${params.familyId}`;
+  const familyUrl = `/families/${params.familyId}`;
 
   const menuItems = [
     {
-      href: `${base}/people`,
+      href: familyUrl,
+      label: "Settings",
+      Icon: Cog6ToothIcon,
+    },
+    {
+      href: `${familyUrl}/people`,
       label: "People",
       Icon: UserGroupIcon,
     },
     {
-      href: `${base}/chores`,
+      href: `${familyUrl}/chores`,
       label: "Chores",
       Icon: BriefcaseIcon,
     },
     {
-      href: `${base}/assignments`,
+      href: `${familyUrl}/assignments`,
       label: "Assignments",
       Icon: CursorArrowRaysIcon,
     },
     {
-      href: `${base}/chore-chart`,
+      href: `${familyUrl}/chore-chart`,
       label: "Chore Chart",
       Icon: ClipboardDocumentCheckIcon,
     },
     {
-      href: `${base}/commissions`,
+      href: `${familyUrl}/commissions`,
       label: "Commissions",
       Icon: BanknotesIcon,
     },

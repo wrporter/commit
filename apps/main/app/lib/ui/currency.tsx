@@ -15,14 +15,15 @@ const variants = tv({
 
 export interface CurrencyProps {
   value: string | number | Decimal;
+  className?: string;
 }
 
-export function Currency({ value }: CurrencyProps) {
+export function Currency({ value, className }: CurrencyProps) {
   const { locale } = useHints();
   const decimal = new Decimal(value);
 
   return (
-    <span className={variants({ positive: decimal.greaterThan(0) })}>
+    <span className={variants({ positive: decimal.greaterThan(0), className })}>
       {decimal.isZero() ? "-" : formatCurrency(value, locale)}
     </span>
   );

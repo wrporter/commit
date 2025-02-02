@@ -15,6 +15,11 @@ import {
 
 import { bytea } from "./bytea.column-type.js";
 
+export interface PaymentCategory {
+  name: string;
+  percent: number;
+}
+
 export const users = pgTable(
   "users",
   {
@@ -38,6 +43,7 @@ export const users = pgTable(
 export const families = pgTable("families", {
   id: uuid().primaryKey().notNull().defaultRandom(),
   name: varchar({ length: 20 }).notNull(),
+  paymentCategories: jsonb().$type<PaymentCategory[]>(),
   createdAt: timestamp().notNull().defaultNow(),
   createdBy: uuid()
     .notNull()

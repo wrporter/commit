@@ -1,3 +1,4 @@
+import { useFormMetadata } from "@conform-to/react";
 import { EllipsisVerticalIcon, PlusIcon } from "@heroicons/react/24/outline";
 import {
   Button,
@@ -68,6 +69,27 @@ export function FormErrors() {
       </p>
       <ul className="list-disc pl-6">
         {Object.entries(form.formState.fieldErrors).map(([name, error]) => (
+          <li key={name}>{error}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export function ConformErrors() {
+  const form = useFormMetadata();
+  if (!form.errors) {
+    return null;
+  }
+
+  return (
+    <div className="bg-red-75 border border-red-400 rounded p-3 text-neutral-600">
+      <p className="mb-2">
+        There were errors submitting the form. Please correct the following and
+        try again.
+      </p>
+      <ul className="list-disc pl-6">
+        {Object.entries(form.errors).map(([name, error]) => (
           <li key={name}>{error}</li>
         ))}
       </ul>
