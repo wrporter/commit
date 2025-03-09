@@ -1,4 +1,4 @@
-import { HeroUIProvider } from "@heroui/react";
+import { HeroUIProvider, cn } from "@heroui/react";
 import type { PropsWithChildren } from "react";
 import {
   Links,
@@ -15,6 +15,7 @@ import stylesheet from "./tailwind.css?url";
 
 import { getUser } from "~/lib/authentication/authentication.server.js";
 import { ClientHintCheck, getHints } from "~/lib/client-hints/client-hints.js";
+import { getTheme, useTheme } from "~/lib/theme/theme.js";
 import { ErrorState } from "~/lib/ui/error-state.js";
 
 export const links: Route.LinksFunction = () => [
@@ -39,16 +40,26 @@ export const meta: Route.MetaFunction = () => [
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   return {
-    user: await getUser(request),
-    hints: getHints(request),
+    requestInfo: {
+      user: await getUser(request),
+      hints: getHints(request),
+      path: new URL(request.url).pathname,
+      userPrefs: {
+        theme: getTheme(request),
+      },
+    },
   };
 };
 
 export function Layout({ children }: PropsWithChildren) {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   return (
-    <html lang="en" className="h-full">
+    <html
+      lang="en"
+      className={cn("text-foreground bg-background h-full", theme)}
+    >
       <head>
         <ClientHintCheck />
         <meta charSet="utf-8" />

@@ -17,7 +17,7 @@ export default function Component() {
     <>
       <Header />
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col gap-4">
         <div className="flex gap-4 items-center">
           <Avatar
             src={user.imageUrl ?? undefined}
@@ -46,7 +46,7 @@ export default function Component() {
           </span>
         </div>
 
-        <div className="mt-8 border-1 border-blue-400 p-2 rounded">
+        <div className="border-1 border-blue-400 p-2 rounded">
           <p>TODO:</p>
           <ul className="list-disc list-inside ml-4">
             <li>Delete account</li>

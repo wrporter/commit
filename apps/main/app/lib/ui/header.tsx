@@ -20,6 +20,7 @@ import React, { type PropsWithChildren } from "react";
 import { Link as RemixLink, useLocation, useSubmit } from "react-router";
 import { tv } from "tailwind-variants";
 
+import { ThemeSwitch } from "~/lib/theme/theme.js";
 import { useOptionalUser } from "~/utils.js";
 
 export const headerMenuItemIconClasses = "w-5 h-5 text-slate-600";
@@ -85,6 +86,15 @@ export function Header({ children }: PropsWithChildren) {
                   }
                 >
                   Profile
+                </DropdownItem>
+
+                <DropdownItem
+                  key="theme"
+                  isReadOnly
+                  aria-label="Theme"
+                  className="p-0"
+                >
+                  <ThemeSwitch />
                 </DropdownItem>
               </DropdownSection>
 

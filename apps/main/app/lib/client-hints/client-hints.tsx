@@ -3,12 +3,15 @@
  * are needed by the server, but are only known by the browser.
  */
 import { getHintUtils } from "@epic-web/client-hints";
-import { subscribeToSchemeChange } from "@epic-web/client-hints/color-scheme";
+import {
+  clientHint as colorThemeHint,
+  subscribeToSchemeChange,
+} from "@epic-web/client-hints/color-scheme";
 import { clientHint as timeZoneHint } from "@epic-web/client-hints/time-zone";
 import React from "react";
 import { useRevalidator } from "react-router";
 
-import { useRootLoaderData } from "./use-root-loader-data.js";
+import { useRequestInfo } from "~/lib/client-hints/request-info.js";
 
 const hintsUtils = getHintUtils({
   timeZone: timeZoneHint,
@@ -17,6 +20,7 @@ const hintsUtils = getHintUtils({
     getValueCode: "navigator.language",
     fallback: "en-US",
   },
+  theme: colorThemeHint,
 });
 
 export const { getHints } = hintsUtils;
@@ -25,7 +29,7 @@ export const { getHints } = hintsUtils;
  * @returns an object with the client hints and their values
  */
 export function useHints() {
-  const data = useRootLoaderData();
+  const data = useRequestInfo();
   if (!data?.hints) {
     throw new Error("No hints found in root loader");
   }
