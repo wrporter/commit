@@ -13,8 +13,8 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-// eslint-disable-next-line require-extensions/require-extensions
-import { bytea } from "./bytea.column-type";
+// Remove file extension in order to run `npm run db:generate`
+import { bytea } from "./bytea.column-type.js";
 
 export interface PaymentCategory {
   name: string;
