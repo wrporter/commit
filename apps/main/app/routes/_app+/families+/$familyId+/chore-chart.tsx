@@ -51,6 +51,7 @@ import { Currency } from "~/lib/ui/currency.js";
 import { getAge } from "~/lib/ui/date.format.js";
 import { FormInput } from "~/lib/ui/form-input.js";
 import { commissionValidator } from "~/lib/validators.js";
+import { getAssignmentReward } from "~/routes/_app+/families+/$familyId+/assignments.js";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const user = await requireUser(request);
@@ -174,7 +175,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       ...(assignment.choreId && { choreId: assignment.choreId }),
       ...(assignment.choreName && { choreName: assignment.choreName }),
       date: date.toString(),
-      baseAmount: assignment.choreReward,
+      baseAmount: getAssignmentReward(assignment),
     };
 
     if (commission) {
@@ -277,7 +278,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                       </Chip>
                     )}
 
-                    <Currency value={assignment.choreReward} />
+                    <Currency value={getAssignmentReward(assignment)} />
                   </div>
                 </div>
 
@@ -341,7 +342,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                 <TableCell>{assignment.personName}</TableCell>
                 <TableCell>{assignment.choreName}</TableCell>
                 <TableCell>
-                  <Currency value={assignment.choreReward} />
+                  <Currency value={getAssignmentReward(assignment)} />
                 </TableCell>
               </TableRow>
             );

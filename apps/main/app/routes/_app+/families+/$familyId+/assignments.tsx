@@ -28,12 +28,20 @@ import { type Chore, getChores } from "~/lib/repository/chore.server.js";
 import { DAYS } from "~/lib/repository/DAYS.js";
 import { type Person, getPeople } from "~/lib/repository/person.server.js";
 import { Currency } from "~/lib/ui/currency.js";
+import { FormInput } from "~/lib/ui/form-input.js";
 import {
   ResourceActions,
   type ResourceFormPropagatedProps,
 } from "~/lib/ui/resource-actions.js";
 import { ResourceAutocomplete } from "~/lib/ui/resource-autocomplete.js";
 import { assignmentValidator } from "~/lib/validators.js";
+
+export function getAssignmentReward(assignment: {
+  reward?: string | null;
+  choreReward: string;
+}) {
+  return assignment.reward ?? assignment.choreReward;
+}
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const user = await requireUser(request);
@@ -121,6 +129,21 @@ export default function Component({ loaderData }: Route.ComponentProps) {
         className="w-full"
         size="sm"
       />,
+      <FormInput
+        key="reward"
+        label="Reward"
+        name="reward"
+        type="number"
+        placeholder="1.50"
+        isRequired
+        required
+        size="sm"
+        startContent={
+          <div className="pointer-events-none flex items-center">
+            <span className="text-default-500 text-small">$</span>
+          </div>
+        }
+      />,
     ],
     hiddenFields: [],
     resource: { type: "Assignment" },
@@ -156,7 +179,6 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                   className="w-full"
                   size="sm"
                 />
-
                 <ResourceAutocomplete<Chore>
                   label="Chore"
                   name="chore"
@@ -166,6 +188,25 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                   resources={loaderData.chores}
                   className="w-full"
                   size="sm"
+                />
+                {/*
+                TODO: Remove default chore rewards. It's not as valuable because
+                 we don't use that value across many chores. What's most important
+                 is reward per child doing the chore.
+                */}
+                <FormInput
+                  label="Reward"
+                  name="reward"
+                  type="number"
+                  placeholder="1.50"
+                  isRequired
+                  required
+                  size="sm"
+                  startContent={
+                    <div className="pointer-events-none flex items-center">
+                      <span className="text-default-500 text-small">$</span>
+                    </div>
+                  }
                 />
               </div>
 
@@ -199,7 +240,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                 <TableCell>{assignment.personName}</TableCell>
                 <TableCell>{assignment.choreName}</TableCell>
                 <TableCell className="hidden sm:table-cell">
-                  <Currency value={assignment.choreReward} />
+                  <Currency value={getAssignmentReward(assignment)} />
                 </TableCell>
                 <TableCell>
                   <ResourceActions
@@ -209,6 +250,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                       defaultValues: {
                         person: assignment.personId,
                         chore: assignment.choreId,
+                        reward: assignment.reward,
                       },
                       resource: {
                         type: form.resource.type,
@@ -218,6 +260,8 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                       hiddenFields: form.hiddenFields.concat([
                         { name: "assignmentId", value: assignment.id },
                         { name: "dayOfWeek", value: dayOfWeek },
+                        { name: "choreReward", value: assignment.choreReward },
+                        // { name: "overrideReward", value: assignment.reward },
                       ]),
                     }}
                   />

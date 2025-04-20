@@ -52,6 +52,7 @@ export const assignmentValidator = withZod(
     ),
     personId: z.string({ required_error: "Please select a person." }),
     choreId: z.string({ required_error: "Please select a chore." }),
+    reward: DecimalSchema,
   })
 );
 

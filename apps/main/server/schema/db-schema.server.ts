@@ -13,7 +13,8 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-import { bytea } from "./bytea.column-type.js";
+// eslint-disable-next-line require-extensions/require-extensions
+import { bytea } from "./bytea.column-type";
 
 export interface PaymentCategory {
   name: string;
@@ -117,6 +118,7 @@ export const chores = pgTable(
       }),
     // image: bytea().notNull(),
     name: varchar({ length: 40 }).notNull(),
+    // TODO: Make this just a default reward.
     reward: numeric({ precision: 16, scale: 4 }).notNull(),
     createdAt: timestamp().notNull().defaultNow(),
     createdBy: uuid()
@@ -155,6 +157,8 @@ export const choreAssignments = pgTable(
         onUpdate: "cascade",
       }),
     dayOfWeek: smallint().notNull(),
+    // TODO: Clarify that this is an override reward
+    reward: numeric({ precision: 16, scale: 4 }),
     createdAt: timestamp().notNull().defaultNow(),
     createdBy: uuid()
       .notNull()

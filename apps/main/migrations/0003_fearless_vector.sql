@@ -1,0 +1,1 @@
+ALTER TABLE "chore_assignments" ADD COLUMN "reward" numeric(16, 4);
