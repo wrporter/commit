@@ -156,7 +156,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
           key={day}
           aria-label="Table of assignments"
           topContent={
-            <h3 className="text-lg text-center font-bold bg-gradient-to-r from-green-200 to-blue-200 rounded-t-lg dark:from-green-700 dark:to-blue-700">
+            <h3 className="text-lg text-center font-bold bg-linear-to-r from-green-200 to-blue-200 rounded-t-lg dark:from-green-700 dark:to-blue-700">
               {day}
             </h3>
           }

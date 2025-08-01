@@ -45,7 +45,7 @@ export function Header({ children }: PropsWithChildren) {
       classNames={{ wrapper: "px-2 sm:px-6" }}
       position="static"
     >
-      <NavbarBrand className="flex flex-grow-0 items-center justify-center">
+      <NavbarBrand className="flex grow-0 items-center justify-center">
         <Link as={RemixLink} to={user ? "/home" : "/"} className="w-8">
           <img src="/assets/logo-icon.svg" alt="Commit" />
         </Link>

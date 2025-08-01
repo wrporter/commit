@@ -224,7 +224,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
 
       <div className="sm:hidden flex flex-col gap-2 mt-4">
         {chores.length === 0 && (
-          <div className="flex justify-center items-center text-default-600 h-20 border-1 border-default-300 rounded">
+          <div className="flex justify-center items-center text-default-600 h-20 border border-default-300 rounded">
             No chores today
           </div>
         )}

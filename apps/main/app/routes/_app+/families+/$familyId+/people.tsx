@@ -292,7 +292,7 @@ function PayModal({
                     <TableRow>
                       <TableCell>{""}</TableCell>
                       <TableCell>{""}</TableCell>
-                      <TableCell className="border-t-1 border-t-default-200">
+                      <TableCell className="border-t border-t-default-200">
                         <div className="flex justify-between gap-2">
                           <div>Leftover</div>
                           <Currency value={leftover} />

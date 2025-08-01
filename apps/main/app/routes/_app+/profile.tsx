@@ -46,7 +46,7 @@ export default function Component() {
           </span>
         </div>
 
-        <div className="border-1 border-blue-400 p-2 rounded">
+        <div className="border border-blue-400 p-2 rounded">
           <p>TODO:</p>
           <ul className="list-disc list-inside ml-4">
             <li>Delete account</li>

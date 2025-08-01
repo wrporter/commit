@@ -18,8 +18,7 @@ import express, {
 import { type ServerBuild } from 'react-router';
 
 import { db } from './db.server.js';
-
-import { env } from '#server/env.server.js';
+import { env } from './env.server.js';
 
 const { NODE_ENV } = env;
 
