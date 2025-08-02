@@ -1,4 +1,4 @@
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { PlusIcon } from '@heroicons/react/24/outline';
 import {
   Button,
   Table,
@@ -7,39 +7,33 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from "@heroui/react";
-import { ValidatedForm, validationError } from "@rvf/react-router";
-import { withZod } from "@rvf/zod";
-import { data } from "react-router";
-import { z } from "zod";
+} from '@heroui/react';
+import { ValidatedForm, validationError } from '@rvf/react-router';
+import { withZod } from '@rvf/zod';
+import { data } from 'react-router';
+import { z } from 'zod';
 
-import type { Route } from "./+types/assignments.js";
+import type { Route } from './+types/assignments.js';
 
-import { requireUser } from "~/lib/authentication/authentication.server.js";
-import { requireFamilyAccess } from "~/lib/authorization/require-family.js";
+import { requireUser } from '~/lib/authentication/authentication.server.js';
+import { requireFamilyAccess } from '~/lib/authorization/require-family.js';
 import {
   createAssignment,
   deleteAssignment,
   getAssignment,
   getAssignments,
   updateAssignment,
-} from "~/lib/repository/assignment.server.js";
-import { type Chore, getChores } from "~/lib/repository/chore.server.js";
-import { DAYS } from "~/lib/repository/DAYS.js";
-import { type Person, getPeople } from "~/lib/repository/person.server.js";
-import { Currency } from "~/lib/ui/currency.js";
-import { FormInput } from "~/lib/ui/form-input.js";
-import {
-  ResourceActions,
-  type ResourceFormPropagatedProps,
-} from "~/lib/ui/resource-actions.js";
-import { ResourceAutocomplete } from "~/lib/ui/resource-autocomplete.js";
-import { assignmentValidator } from "~/lib/validators.js";
+} from '~/lib/repository/assignment.server.js';
+import { type Chore, getChores } from '~/lib/repository/chore.server.js';
+import { DAYS } from '~/lib/repository/DAYS.js';
+import { type Person, getPeople } from '~/lib/repository/person.server.js';
+import { Currency } from '~/lib/ui/currency.js';
+import { FormInput } from '~/lib/ui/form-input.js';
+import { ResourceActions, type ResourceFormPropagatedProps } from '~/lib/ui/resource-actions.js';
+import { ResourceAutocomplete } from '~/lib/ui/resource-autocomplete.js';
+import { assignmentValidator } from '~/lib/validators.js';
 
-export function getAssignmentReward(assignment: {
-  reward?: string | null;
-  choreReward: string;
-}) {
+export function getAssignmentReward(assignment: { reward?: string | null; choreReward: string }) {
   return assignment.reward ?? assignment.choreReward;
 }
 
@@ -59,11 +53,11 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   const user = await requireUser(request);
   const family = await requireFamilyAccess(user, params.familyId);
 
-  if (request.method === "DELETE") {
+  if (request.method === 'DELETE') {
     const result = await withZod(
       z.object({
         assignmentId: z.string().uuid(),
-      })
+      }),
     ).validate(await request.formData());
     if (result.error) {
       return validationError(result.error, result.submittedData);
@@ -72,10 +66,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     const { assignmentId } = result.data;
     const assignment = await getAssignment(family.id, assignmentId);
     if (!assignment) {
-      throw data(
-        { errorMessage: `Assignment [${assignmentId}] does not exist` },
-        404
-      );
+      throw data({ errorMessage: `Assignment [${assignmentId}] does not exist` }, 404);
     }
 
     return deleteAssignment(family.id, assignmentId);
@@ -86,7 +77,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     return validationError(result.error, result.submittedData);
   }
 
-  if (request.method === "POST") {
+  if (request.method === 'POST') {
+    // @ts-ignore -- rvf is not compatible with the current version of zod
     return await createAssignment({
       ...result.data,
       createdBy: user.id,
@@ -94,7 +86,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     });
   }
 
-  if (request.method === "PUT" && result.data.assignmentId) {
+  if (request.method === 'PUT' && result.data.assignmentId) {
+    // @ts-ignore -- rvf is not compatible with the current version of zod
     return await updateAssignment({
       ...result.data,
       id: result.data.assignmentId,
@@ -113,7 +106,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
         name="person"
         placeholder="Select person"
         isRequired
-        displayValue={(person) => person?.name ?? ""}
+        displayValue={(person) => person?.name ?? ''}
         resources={loaderData.people}
         className="w-full"
         size="sm"
@@ -124,7 +117,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
         name="chore"
         placeholder="Select chore"
         isRequired
-        displayValue={(chore) => chore?.name ?? ""}
+        displayValue={(chore) => chore?.name ?? ''}
         resources={loaderData.chores}
         className="w-full"
         size="sm"
@@ -146,7 +139,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
       />,
     ],
     hiddenFields: [],
-    resource: { type: "Assignment" },
+    resource: { type: 'Assignment' },
   };
 
   return (
@@ -174,7 +167,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                   name="person"
                   placeholder="Select person"
                   isRequired
-                  displayValue={(person) => person?.name ?? ""}
+                  displayValue={(person) => person?.name ?? ''}
                   resources={loaderData.people}
                   className="w-full"
                   size="sm"
@@ -184,7 +177,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                   name="chore"
                   placeholder="Select chore"
                   isRequired
-                  displayValue={(chore) => chore?.name ?? ""}
+                  displayValue={(chore) => chore?.name ?? ''}
                   resources={loaderData.chores}
                   className="w-full"
                   size="sm"
@@ -232,7 +225,7 @@ export default function Component({ loaderData }: Route.ComponentProps) {
           <TableBody
             emptyContent="No assignments found"
             items={loaderData.assignments.filter(
-              (assignment) => assignment.dayOfWeek === dayOfWeek
+              (assignment) => assignment.dayOfWeek === dayOfWeek,
             )}
           >
             {(assignment) => (
@@ -258,9 +251,9 @@ export default function Component({ loaderData }: Route.ComponentProps) {
                         name: `${assignment.personName} - ${assignment.choreName}`,
                       },
                       hiddenFields: form.hiddenFields.concat([
-                        { name: "assignmentId", value: assignment.id },
-                        { name: "dayOfWeek", value: dayOfWeek },
-                        { name: "choreReward", value: assignment.choreReward },
+                        { name: 'assignmentId', value: assignment.id },
+                        { name: 'dayOfWeek', value: dayOfWeek },
+                        { name: 'choreReward', value: assignment.choreReward },
                         // { name: "overrideReward", value: assignment.reward },
                       ]),
                     }}
